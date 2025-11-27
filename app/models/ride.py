@@ -1,0 +1,27 @@
+from sqlalchemy import Column, Integer, String, Date, Time, DECIMAL, TIMESTAMP, CheckConstraint, ForeignKey
+from sqlalchemy.orm import relationship
+from app.database import db
+
+class Ride(db): 
+    __tablename__ = "rides"
+    
+    ride_id = Column(Integer, primary_key=True, index=True)
+    driver_id = Column(Integer, ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
+    car_id = Column(Integer, ForeignKey('vehicles.vehicle_id', ondelete='RESTRICT'), nullable=False)
+    address_from = Column(String(255), nullable=False)
+    address_to = Column(String(255), nullable=False)
+    departure = Column(TIMESTAMP, nullable=False)
+    max_seats = Column(Integer, nullable=False)
+    price = Column(DECIMAL(4, 2), nullable=False)
+    status = Column(String(20), nullable=False, default='actif')
+    creation_time = Column(TIMESTAMP, nullable=False)
+
+    # Constraints
+    __table_args__ = (
+        CheckConstraint(max_seats > 0, name='chk_trajet_places'),
+        CheckConstraint(price >= 0, name='chk_trajet_prix'),
+        CheckConstraint(status.in_(['active', 'full', 'canceled', 'finished']), name='chk_ride_status'),
+    )
+
+    # Relationships
+    reservations = relationship("Reservation", back_populates="rides")
