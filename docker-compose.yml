@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: gocampus_db
+    environment:
+      POSTGRES_USER: gocampus_admin
+      POSTGRES_PASSWORD: gocampus_pwd
+      POSTGRES_DB: gocampus_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+volumes:
+  postgres_data:
