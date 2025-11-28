@@ -23,7 +23,7 @@ class Ride(db):
     )
 
     # Relationships
-    # 1. Links to User.rides_driven (This was missing!)
+    # 1. Links to User.rides_driven
     driver = relationship("User", back_populates="rides_driven")
     
     # 2. Links to Vehicle.rides

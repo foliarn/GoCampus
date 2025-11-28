@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from app import models, schemas, utils
-from datetime import datetime
+from typing import List, Optional
 
-# === USER MANAGEMENT ===
+# === USER ===
 
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
