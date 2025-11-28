@@ -1,12 +1,27 @@
 from passlib.context import CryptContext
+from datetime import datetime, timedelta
+from typing import Optional
+from jose import jwt
+from config import settings
 
-# Configuration pour utiliser l'algorithme bcrypt (standard robuste)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def verify_password(plain_password, hashed_password):
-    """Vérifie si le mot de passe correspond au hash enregistré."""
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Checks if the password corresponds with the hash."""
     return pwd_context.verify(plain_password, hashed_password)
 
-def get_password_hash(password):
-    """Transforme un mot de passe en hash sécurisé."""
+def get_password_hash(password: str) -> str:
+    """Generates the passwords' hash."""
     return pwd_context.hash(password)
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    """Creates a JWT Token with a expiry date."""
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return encoded_jwt

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, Time, DECIMAL, TIMESTAMP, CheckConstraint, ForeignKey
+from sqlalchemy import Column, Integer, String, DECIMAL, TIMESTAMP, CheckConstraint, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import db
 
@@ -13,10 +13,9 @@ class Ride(db):
     departure = Column(TIMESTAMP, nullable=False)
     max_seats = Column(Integer, nullable=False)
     price = Column(DECIMAL(4, 2), nullable=False)
-    status = Column(String(20), nullable=False, default='actif')
+    status = Column(String(20), nullable=False, default='active')
     creation_time = Column(TIMESTAMP, nullable=False)
 
-    # Constraints
     __table_args__ = (
         CheckConstraint(max_seats > 0, name='chk_trajet_places'),
         CheckConstraint(price >= 0, name='chk_trajet_prix'),
@@ -24,4 +23,11 @@ class Ride(db):
     )
 
     # Relationships
-    reservations = relationship("Reservation", back_populates="rides")
+    # 1. Links to User.rides_driven (This was missing!)
+    driver = relationship("User", back_populates="rides_driven")
+    
+    # 2. Links to Vehicle.rides
+    vehicle = relationship("Vehicle", back_populates="rides")
+    
+    # 3. Links to Reservation.ride
+    reservations = relationship("Reservation", back_populates="ride")

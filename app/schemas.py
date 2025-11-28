@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
-from datetime import date, time, datetime
-from typing import Optional, List
+from datetime import datetime
+from typing import Optional
 from decimal import Decimal
 
 # --- USER ---
@@ -13,42 +13,41 @@ class UserBase(BaseModel):
     role: str = 'normal'
 
 class UserCreate(UserBase):
-    password: str # 
+    password: str 
 
 class UserOut(UserBase):
     user_id: int
-    # On ne renvoie JAMAIS le mot de passe
 
     class Config:
         from_attributes = True
 
-# --- VEHICULE ---
-class VehiculeBase(BaseModel):
+# --- VEHICLE ---
+class VehicleBase(BaseModel):
     license_plate: str
     model: str
     color: str
-    seats: int
+    max_seats: int
 
-class VehicleCreate(VehiculeBase):
+class VehicleCreate(VehicleBase):
     pass
 
-class VehicleOut(VehiculeBase):
+class VehicleOut(VehicleBase):
     vehicle_id: int
     driver_id: int
 
     class Config:
         from_attributes = True
 
-# --- TRAJET ---
+# --- RIDE (Trajet) ---
 class RideBase(BaseModel):
-    address_start: str
-    address_arrival: str
+    address_from: str
+    address_to: str
     departure: datetime
     max_seats: int
     price: Decimal
 
 class RideCreate(RideBase):
-    vehicle_id: int # On doit savoir quelle voiture est utilisée
+    vehicle_id: int 
 
 class RideOut(RideBase):
     ride_id: int
@@ -75,3 +74,11 @@ class ReservationOut(ReservationBase):
 
     class Config:
         from_attributes = True
+
+# --- AUTH ---
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: Optional[str] = None

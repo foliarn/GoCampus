@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, Time, DECIMAL, TIMESTAMP, CheckConstraint, ForeignKey
+from sqlalchemy import Column, Integer, String, TIMESTAMP, CheckConstraint, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import db
 
@@ -13,10 +13,12 @@ class Reservation(db):
     reservation_date = Column(TIMESTAMP, nullable=False)
 
     # Relationships
-    trajet = relationship("Ride", back_populates="reservations") 
-    passager = relationship("User", back_populates="reservations_made") 
+    # 1. Links to Ride.reservations
+    ride = relationship("Ride", back_populates="reservations")
+    
+    # 2. Links to User.reservations_made
+    passenger = relationship("User", back_populates="reservations_made") 
 
-    # Constraints
     __table_args__ = (
         CheckConstraint(seats_booked > 0, name='chk_seats_booked'),
         CheckConstraint(status.in_(['waiting', 'confirmed', 'canceled', 'finished']), name='chk_status_reservation'),

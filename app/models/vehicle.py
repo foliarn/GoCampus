@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, Time, DECIMAL, TIMESTAMP, CheckConstraint, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import db
 
@@ -13,5 +13,8 @@ class Vehicle(db):
     model = Column(String(100), nullable=False)
 
     # Relationships
-    owner = relationship("User", back_populates="vehicle")
-    used_in = relationship("Ride", back_populates="")
+    # 1. Links to User.vehicles
+    owner = relationship("User", back_populates="vehicles")
+    
+    # 2. Links to Ride.vehicle
+    rides = relationship("Ride", back_populates="vehicle")
