@@ -38,7 +38,7 @@ class VehicleOut(VehicleBase):
     class Config:
         from_attributes = True
 
-# --- RIDE (Trajet) ---
+# --- RIDE ---
 class RideBase(BaseModel):
     address_from: str
     address_to: str
