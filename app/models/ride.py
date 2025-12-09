@@ -7,7 +7,7 @@ class Ride(db):
     
     ride_id = Column(Integer, primary_key=True, index=True)
     driver_id = Column(Integer, ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
-    car_id = Column(Integer, ForeignKey('vehicles.vehicle_id', ondelete='RESTRICT'), nullable=False)
+    vehicle_id = Column(Integer, ForeignKey('vehicles.vehicle_id', ondelete='RESTRICT'))
     address_from = Column(String(255), nullable=False)
     address_to = Column(String(255), nullable=False)
     departure = Column(TIMESTAMP, nullable=False)

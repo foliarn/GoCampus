@@ -1,8 +1,8 @@
-"""Initial migration complete
+"""Initial revision english models
 
-Revision ID: 4a66cc0b7dc1
+Revision ID: 46c286749b2c
 Revises: 
-Create Date: 2025-11-27 19:28:48.223874
+Create Date: 2025-12-09 19:28:47.580686
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4a66cc0b7dc1'
+revision: str = '46c286749b2c'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -50,7 +50,7 @@ def upgrade() -> None:
     op.create_table('rides',
     sa.Column('ride_id', sa.Integer(), nullable=False),
     sa.Column('driver_id', sa.Integer(), nullable=False),
-    sa.Column('car_id', sa.Integer(), nullable=False),
+    sa.Column('vehicle_id', sa.Integer(), nullable=False),
     sa.Column('address_from', sa.String(length=255), nullable=False),
     sa.Column('address_to', sa.String(length=255), nullable=False),
     sa.Column('departure', sa.TIMESTAMP(), nullable=False),
@@ -61,8 +61,8 @@ def upgrade() -> None:
     sa.CheckConstraint("status IN ('active', 'full', 'canceled', 'finished')", name='chk_ride_status'),
     sa.CheckConstraint('max_seats > 0', name='chk_trajet_places'),
     sa.CheckConstraint('price >= 0', name='chk_trajet_prix'),
-    sa.ForeignKeyConstraint(['car_id'], ['vehicles.vehicle_id'], ondelete='RESTRICT'),
     sa.ForeignKeyConstraint(['driver_id'], ['users.user_id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['vehicle_id'], ['vehicles.vehicle_id'], ondelete='RESTRICT'),
     sa.PrimaryKeyConstraint('ride_id')
     )
     op.create_index(op.f('ix_rides_ride_id'), 'rides', ['ride_id'], unique=False)

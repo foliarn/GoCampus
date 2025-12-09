@@ -8,11 +8,13 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Checks if the password corresponds with the hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    # Bcrypt limit fix: truncate to 72 bytes
+    return pwd_context.verify(plain_password[:72], hashed_password)
 
 def get_password_hash(password: str) -> str:
     """Generates the passwords' hash."""
-    return pwd_context.hash(password)
+    # Bcrypt limit fix: truncate to 72 bytes
+    return pwd_context.hash(password[:72])
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     """Creates a JWT Token with a expiry date."""

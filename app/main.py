@@ -1,12 +1,13 @@
 from fastapi import FastAPI, Depends
-from app.routers import auth, vehicles
+from app.routers import auth, vehicles, rides, reservations
 from app import deps, schemas
 
 app = FastAPI(title="GoCampus API")
 
-# Inclusion du routeur d'authentification
 app.include_router(auth.router)
 app.include_router(vehicles.router)
+app.include_router(rides.router)
+app.include_router(reservations.router)
 
 @app.get("/")
 def read_root():
