@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>GoCampus - Proposer un trajet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="proposer.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <img src="logo.svg" alt="Logo GoCampus">
+            GoCampus
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="rechercher.html">Rechercher</a></li>
+            <li><a href="proposer.html" class="active">Proposer un trajet</a></li>
+            <li><a href="reservations.html">Mes réservations</a></li>
+            <li><a href="annonces.html">Mes annonces</a></li>
+            <li><a href="connexion.html">Connexion</a></li>
+        </ul>
+    </nav>
+
+<!-- CONTENU PAGE -->
+<main class="trajet-page">
+
+    <div class="trajet-card">
+
+        <div class="trajet-card-header">
+            <h1>Proposer un trajet</h1>
+            <p>Conducteur : Abdellah Hadj</p>
+        </div>
+
+        <div class="trajet-card-body">
+
+            <label>Départ</label>
+            <input type="text" placeholder="Ville de départ">
+
+            <label>Arrivée</label>
+            <input type="text" value="IUT Amiens">
+
+            <div class="row">
+                <div>
+                    <label>Date</label>
+                    <input type="date">
+                </div>
+                <div>
+                    <label>Heure</label>
+                    <input type="time">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="price-box">
+                    <label>Prix par passager</label>
+                    <div class="price">-- €</div>
+                    <span>Remplissez l’itinéraire pour calculer</span>
+                </div>
+
+                <div>
+                    <label>Places</label>
+                    <input type="number" min="1" max="9">
+                </div>
+            </div>
+
+            <button class="publish-btn">Publier le trajet</button>
+
+        </div>
+    </div>
+
+</main>
+
+<!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>GoCampus</h4>
+                    <p style="opacity: 0.8; line-height: 1.6;">
+                        Service de covoiturage pour les étudiants de l'Université de Picardie Jules Verne.
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><img src="icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
+                        <li><img src="icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>A propos</h4>
+                    <p style="opacity: 0.8; line-height: 1.6;">Un service créé par et pour les étudiants pour faciliter les déplacements.</p>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 GoCampus. Tous droits réservés.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoCampus - Rechercher</title>
+    <!-- Police Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="rechercher.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <img src="logo.svg" alt="Logo GoCampus">
+            GoCampus
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="rechercher.html" class="active">Rechercher</a></li>
+            <li><a href="proposer.html">Proposer un trajet</a></li>
+            <li><a href="reservations.html">Mes réservations</a></li>
+            <li><a href="annonces.html">Mes annonces</a></li>
+            <li><a href="connexion.html">Connexion</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Search -->
+    <header class="hero-search">
+        <h1>Rechercher un trajet</h1>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        
+        <!-- Formulaire de recherche -->
+        <div class="search-card">
+            <form action="#">
+                <div class="search-form-grid">
+                    
+                    <!-- Départ -->
+                    <div class="form-group">
+                        <label class="form-label">Départ</label>
+                        <div class="input-wrapper">
+                            <input type="text" placeholder="Ville de départ" required>
+                        </div>
+                    </div>
+
+                    <!-- Arrivée -->
+                    <div class="form-group">
+                        <label class="form-label">Arrivée</label>
+                        <div class="input-wrapper">
+                            <input type="text" value="IUT Amiens">
+                        </div>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="form-group">
+                        <label class="form-label">Date</label>      
+                        <div class="input-wrapper">
+                            <input type="date" required> 
+                        </div>
+                    </div>
+
+                    <!-- Bouton Rechercher -->
+                    <button type="submit" class="btn-search-large">
+                        <img src="icon-search.svg" alt="Search" class="icon-img" style="filter: brightness(0) invert(1);">
+                        Rechercher
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Résultats (Message "Aucun trajet...") A gerer avec BD  -->
+        <div class="results-area">
+            <p class="no-results-msg">Aucun trajet trouvé pour ces critères</p>
+            
+            <div class="action-links">
+                <a href="#" class="text-link">Voir les derniers trajets publiés</a>
+                <a href="rechercher.html" class="text-link" style="color: var(--gray-text); border-bottom: 1px solid #ccc;">Réinitialiser les filtres</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>GoCampus</h4>
+                    <p style="opacity: 0.8; line-height: 1.6;">
+                        Service de covoiturage pour les étudiants de l'Université de Picardie Jules Verne.
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><img src="icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
+                        <li><img src="icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>A propos</h4>
+                    <p style="opacity: 0.8; line-height: 1.6;">Un service créé par et pour les étudiants pour faciliter les déplacements.</p>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 GoCampus. Tous droits réservés.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

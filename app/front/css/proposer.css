@@ -1,0 +1,242 @@
+:root {
+    /* Palette de couleurs */
+    --primary-blue: #0072CE;
+    --dark-blue: #003366;
+    --nav-active-bg: #4A90E2;
+    
+    --bg-light: #F2F2F2;
+    --white: #FFFFFF;
+    --green-accent: #4CAF50;
+    
+    --dark-text: #1F2937;
+    --gray-text: #6B7280;
+    --radius-card: 12px;
+}
+
+/* Réinitialisation */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--dark-text);
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+
+/* Images icônes */
+.icon-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* --- NAVBAR --- */
+.navbar {
+    background-color: var(--dark-blue);
+    height: 80px;
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo img { height: 30px; width: auto; }
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-links a {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--white);
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.nav-links a.active {
+    background-color: var(--nav-active-bg);
+    font-weight: 600;
+}
+
+.nav-links a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- TRAJET PAGE --- */
+.trajet-page {
+    min-height: calc(100vh - 160px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* changer de center à flex-start */
+    padding: 40px 0; /* espace en haut et en bas */
+}
+
+
+/* Carte trajet */
+.trajet-card {
+    width: 420px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+/* Header carte */
+.trajet-card-header {
+    background-color: #032E5A;
+    color: #fff;
+    padding: 16px;
+    text-align: center;
+}
+
+.trajet-card-header h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.trajet-card-header p {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+/* Corps carte */
+.trajet-card-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #032E5A;
+}
+
+input {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    font-size: 0.85rem;
+}
+
+/* Lignes pour date/heure ou prix/places */
+.row {
+    display: flex;
+    gap: 10px;
+}
+
+.row > div {
+    flex: 1;
+}
+
+
+/* Prix */
+.price-box {
+    background: #f1f3f5;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.price {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #032E5A;
+}
+
+.price-box span {
+    font-size: 0.7rem;
+    color: #6b7280;
+}
+
+/* Bouton publier */
+.publish-btn {
+    margin-top: 10px;
+    background-color: var(--green-accent);
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.publish-btn:hover {
+    background-color: #43a047;
+}
+
+/* --- FOOTER --- */
+footer {
+    background-color: var(--dark-blue);
+    color: #d1d5db;
+    padding: 60px 0 30px;
+    font-size: 0.9rem;
+    margin-top: auto;
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+.footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+
+.footer-col h4 { color: var(--white); margin-bottom: 20px; font-size: 1.1rem; }
+.footer-col p, .footer-col li { margin-bottom: 10px; }
+.footer-col ul li { display: flex; align-items: center; gap: 10px; }
+
+.copyright { text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.8rem; }
+
+@media (max-width: 768px) {
+    .nav-links { display: none; }
+    .navbar { padding: 0 20px; }
+    .footer-grid { grid-template-columns: 1fr; gap: 30px; }
+}
+
+/* --- Icone calendrier + Horloge --- */
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    cursor: pointer;
+}
+
+input[type="date"] {
+    background: url('icon-calendar-clair.svg') no-repeat right 10px center;
+    background-size: 20px;
+    background-color: white;
+}
+
+input[type="time"] {
+    background: url('icon-horloge.svg') no-repeat right 10px center;
+    background-size: 20px;
+    background-color: white;
+}
