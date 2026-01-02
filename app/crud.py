@@ -86,3 +86,24 @@ def create_reservation(db: Session, reservation: schemas.ReservationCreate, user
     db.commit()
     db.refresh(db_reservation)
     return db_reservation
+
+# === VEHICLE MANAGEMENT ===
+
+def get_user_vehicles(db: Session, user_id: int):
+    """Récupère les véhicules d'un utilisateur"""
+    return db.query(models.Vehicle)\
+        .filter(models.Vehicle.driver_id == user_id)\
+        .all()
+
+def create_vehicle(db: Session, vehicle: schemas.VehicleCreate, user_id: int):
+    db_vehicle = models.Vehicle(
+        driver_id=user_id,
+        license_plate=vehicle.license_plate,
+        model=vehicle.model,
+        color=vehicle.color,
+        max_seats=vehicle.max_seats
+    )
+    db.add(db_vehicle)
+    db.commit()
+    db.refresh(db_vehicle)
+    return db_vehicle
