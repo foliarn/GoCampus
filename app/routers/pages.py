@@ -1,0 +1,43 @@
+from fastapi import APIRouter, Request
+from fastapi.templating import Jinja2Templates
+
+router = APIRouter(
+    tags=["Pages"]
+)
+
+templates = Jinja2Templates(directory="app/templates")
+
+# Page d'accueil
+@router.get("/")
+def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+# Connexion
+@router.get("/connexion")
+def connexion(request: Request):
+    return templates.TemplateResponse("connexion.html", {"request": request})
+
+# Inscription
+@router.get("/inscription")
+def inscription(request: Request):
+    return templates.TemplateResponse("inscription.html", {"request": request})
+
+# Rechercher un trajet
+@router.get("/rechercher")
+def rechercher(request: Request):
+    return templates.TemplateResponse("rechercher.html", {"request": request})
+
+# Proposer un trajet
+@router.get("/proposer")
+def proposer(request: Request):
+    return templates.TemplateResponse("proposer.html", {"request": request})
+
+# Mes réservations
+@router.get("/reservations")
+def reservations(request: Request):
+    return templates.TemplateResponse("reservations.html", {"request": request})
+
+# Mes annonces
+@router.get("/annonces")
+def annonces(request: Request):
+    return templates.TemplateResponse("annonces.html", {"request": request})

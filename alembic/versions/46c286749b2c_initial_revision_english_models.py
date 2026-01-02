@@ -61,6 +61,7 @@ def upgrade() -> None:
     sa.CheckConstraint("status IN ('active', 'full', 'canceled', 'finished')", name='chk_ride_status'),
     sa.CheckConstraint('max_seats > 0', name='chk_trajet_places'),
     sa.CheckConstraint('price >= 0', name='chk_trajet_prix'),
+    sa.ForeignKeyConstraint(['vehicle_id'], ['vehicles.vehicle_id'], ondelete='RESTRICT'),
     sa.ForeignKeyConstraint(['driver_id'], ['users.user_id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['vehicle_id'], ['vehicles.vehicle_id'], ondelete='RESTRICT'),
     sa.PrimaryKeyConstraint('ride_id')

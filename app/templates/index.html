@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoCampus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <img src="/static/images/logo.svg" alt="GoCampus">
+            GoCampus
+        </a>
+        <ul class="nav-links">
+            <li><a href="/" class="active">Accueil</a></li>
+            <li><a href="/rechercher">Rechercher</a></li>
+            <li><a href="/proposer">Proposer un trajet</a></li>
+            <li><a href="/reservations">Mes réservations</a></li>
+            <li><a href="/annonces">Mes annonces</a></li>
+            <li><a href="/connexion">Connexion</a></li>
+        </ul>
+    </nav>
+
+    <!-- Titre -->
+    <header class="hero">
+        <div class="container">
+            <h1>Partagez vos trajets entre étudiants</h1>
+            <p>Connectés par la route, unis par l'IUT</p>
+        </div>
+    </header>
+
+    <!-- Barre de Recherche -->
+    <div class="search-wrapper">
+        <form class="search-bar">
+            <!-- DEPART -->
+            <div class="input-group">
+                <span class="input-label">Départ</span>
+                <div class="input-field">
+                    <img src="/static/images/icon-map-gris.svg" alt="Loc" class="icon-img">
+                    <input type="text" placeholder="D'où partez-vous ?">
+                </div>
+            </div>
+            
+            <!-- ARRIVEE -->
+            <div class="input-group">
+                <span class="input-label">Arrivée</span>
+                <div class="input-field">
+                    <img src="/static/images/icon-arriver.svg" alt="Loc" class="icon-img">
+                    <input type="text" value="IUT Amiens">
+                </div>
+            </div>
+
+            <!-- Bouton avec image recherche -->
+            <button type="button" class="btn-search">
+                <img src="/static/images/icon-search.svg" alt="Search" class="icon-img" style="filter: brightness(0) invert(1);">
+                Rechercher
+            </button>
+        </form>
+    </div>
+
+    <!-- Contenu Principal -->
+    <main class="container">
+        
+        <!-- Avantages -->
+        <section class="features-section">
+            <h2 style="margin-bottom: 30px;">Pourquoi utiliser GoCampus ?</h2>
+            <div class="features-grid">
+                <div class="feature-box">
+                    <div class="rond-bleu">
+                        <img src="/static/images/icon-money.svg" alt="Economique" class="icon-large">
+                    </div>
+                    <h3>Économique</h3>
+                    <p>Partagez les frais et réduisez vos dépenses.</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="rond-bleu">
+                        <img src="/static/images/icon-users.svg" alt="Convivial" class="icon-large">
+                    </div>
+                    <h3>Convivial</h3>
+                    <p>Rencontrez d'autres étudiants de l'UPJV.</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="rond-bleu">
+                        <img src="/static/images/icon-security.svg" alt="Securisé" class="icon-large">
+                    </div>
+                    <h3>Sécurisé</h3>
+                    <p>Profils étudiants vérifiés uniquement.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inscription (visible uniquement si NON connecté) -->
+        <section class="cta-box guest-only">
+            <h2>Prêt à commencer ?</h2>
+            <p>Créez votre compte gratuitement et commencez à covoiturer dès aujourd'hui.</p>
+            <a href="/inscription" class="btn-register">S'inscrire gratuitement <img src="/static/images/icon-fleche-droite.svg" alt="" class="icon-arrow"></a>
+        </section>
+
+        <!-- Message de bienvenue (visible uniquement si connecté) -->
+        <section class="cta-box auth-only" style="display: none;">
+            <h2>Bienvenue sur GoCampus !</h2>
+            <p>Vous êtes connecté. Recherchez un trajet ou proposez le vôtre.</p>
+            <a href="/rechercher" class="btn-register">Rechercher un trajet <img src="/static/images/icon-fleche-droite.svg" alt="" class="icon-arrow"></a>
+        </section>
+
+            <!-- Trajets -->
+        <section class="listings-section">
+            <div class="cards-grid" id="rides-grid">
+                <!-- Les trajets seront chargés dynamiquement ici -->
+                <p class="no-results-msg">Chargement des trajets...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>GoCampus</h4>
+                    <p style="opacity: 0.8; line-height: 1.6;">
+                        Service de covoiturage pour les étudiants de l'Université de Picardie Jules Verne.
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><img src="/static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
+                        <li><img src="/static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>A propos</h4>
+                    <p style="opacity: 0.8; line-height: 1.6;">Un service créé par et pour les étudiants pour faciliter les déplacements.</p>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 GoCampus. Tous droits réservés.
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/rides.js"></script>
+</body>
+</html>

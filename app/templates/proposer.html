@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>GoCampus - Proposer un trajet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/proposer.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <img src="/static/images/logo.svg" alt="Logo GoCampus">
+            GoCampus
+        </a>
+        <ul class="nav-links">
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/rechercher">Rechercher</a></li>
+            <li><a href="/proposer" class="active">Proposer un trajet</a></li>
+            <li><a href="/reservations">Mes réservations</a></li>
+            <li><a href="/annonces">Mes annonces</a></li>
+            <li><a href="/connexion">Connexion</a></li>
+        </ul>
+    </nav>
+
+    <!-- CONTENU PAGE -->
+    <main class="trajet-page">
+
+        <div class="trajet-card">
+
+            <div class="trajet-card-header">
+                <h1>Proposer un trajet</h1>
+                <p id="driverName">Connectez-vous pour proposer un trajet</p>
+            </div>
+
+            <div class="trajet-card-body">
+                <form id="rideForm">
+
+                    <label>Départ</label>
+                    <input type="text" id="addressFrom" placeholder="Ville de départ" required>
+
+                    <label>Arrivée</label>
+                    <input type="text" id="addressTo" value="IUT Amiens" required>
+
+                    <div class="row">
+                        <div>
+                            <label>Date</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        <div>
+                            <label>Heure</label>
+                            <input type="time" id="time" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div>
+                            <label>Prix par passager (€)</label>
+                            <input type="number" id="price" min="0" max="50" step="0.10" placeholder="1.50" required>
+                        </div>
+                        <div>
+                            <label>Places disponibles</label>
+                            <input type="number" id="maxSeats" min="1" max="8" value="3" required>
+                        </div>
+                    </div>
+
+                    <!-- Sélection du véhicule -->
+                    <label>Véhicule</label>
+                    <select id="vehicleId" required>
+                        <option value="">-- Sélectionnez un véhicule --</option>
+                    </select>
+
+                    <!-- Message d'erreur -->
+                    <div id="errorMessage" style="color: red; margin: 10px 0; display: none;"></div>
+
+                    <!-- Message de succès -->
+                    <div id="successMessage" style="color: green; margin: 10px 0; display: none;"></div>
+
+                    <button type="submit" class="publish-btn">Publier le trajet</button>
+
+                </form>
+
+                <!-- Lien pour ajouter un véhicule si aucun -->
+                <p id="noVehicleMsg" style="display: none; margin-top: 15px; text-align: center; color: #6B7280;">
+                    Vous n'avez pas de véhicule enregistré. 
+                    <a href="#" id="addVehicleLink" style="color: #0072CE; text-decoration: underline;">Ajouter un véhicule</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Modal pour ajouter un véhicule -->
+        <div id="vehicleModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+            <div style="background: white; padding: 30px; border-radius: 12px; max-width: 400px; width: 90%;">
+                <h2 style="margin-bottom: 20px; color: #003366;">Ajouter un véhicule</h2>
+                <form id="vehicleForm">
+                    <label>Modèle</label>
+                    <input type="text" id="vehicleModel" placeholder="Ex: Renault Clio" required>
+                    
+                    <label>Plaque d'immatriculation</label>
+                    <input type="text" id="licensePlate" placeholder="Ex: AB-123-CD" required>
+                    
+                    <label>Couleur</label>
+                    <input type="text" id="vehicleColor" placeholder="Ex: Bleu">
+                    
+                    <label>Nombre de places</label>
+                    <input type="number" id="vehicleSeats" min="1" max="8" value="4" required>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button type="submit" class="publish-btn" style="flex: 1;">Ajouter</button>
+                        <button type="button" id="closeModal" style="flex: 1; background: #ccc; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Annuler</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>GoCampus</h4>
+                    <p style="opacity: 0.8; line-height: 1.6;">
+                        Service de covoiturage pour les étudiants de l'Université de Picardie Jules Verne.
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><img src="/static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
+                        <li><img src="/static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>A propos</h4>
+                    <p style="opacity: 0.8; line-height: 1.6;">Un service créé par et pour les étudiants pour faciliter les déplacements.</p>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 GoCampus. Tous droits réservés.
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/proposer.js"></script>
+
+</body>
+</html>

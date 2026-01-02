@@ -7,24 +7,24 @@
     <!-- Police Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="inscription.css">
+    <link rel="stylesheet" href="/static/css/inscription.css">
     
 </head>
 <body>
 
     <!-- Header -->
     <nav class="navbar">
-        <a href="index.html" class="logo">
-            <img src="logo.svg" alt="Logo GoCampus" onerror="this.style.display='none'">
+        <a href="/" class="logo">
+            <img src="/static/images/logo.svg" alt="Logo GoCampus" onerror="this.style.display='none'">
             GoCampus
         </a>
         <ul class="nav-links">
-            <li><a href="index.html">Accueil</a></li>
-            <li><a href="rechercher.html">Rechercher</a></li>
-            <li><a href="proposer.html">Proposer un trajet</a></li>
-            <li><a href="reservations.html">Mes réservations</a></li>
-            <li><a href="annonces.html">Mes annonces</a></li>
-            <li><a href="connexion.html">Connexion</a></li>
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/rechercher">Rechercher</a></li>
+            <li><a href="/proposer">Proposer un trajet</a></li>
+            <li><a href="/reservations">Mes réservations</a></li>
+            <li><a href="/annonces">Mes annonces</a></li>
+            <li><a href="/connexion">Connexion</a></li>
         </ul>
     </nav>
 
@@ -33,26 +33,26 @@
         <div class="login-card">
             
             <div class="login-header-wrapper">
-                <img src="logo.svg" alt="Logo" class="login-logo-img" onerror="this.style.display='none'">
+                <img src="/static/images/logo.svg" alt="Logo" class="login-logo-img" onerror="this.style.display='none'">
                 <h1 class="login-logo-text">GoCampus</h1>
             </div>
 
             <h2 class="login-subtitle">Créer un compte</h2>
 
-            <form action="#">
+            <form id="registerForm">
                 
                 <!-- Nom et Prénom -->
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Nom</label>
                         <div class="input-wrapper">
-                            <input type="text" required>
+                            <input type="text" id="name" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Prénom</label>
                         <div class="input-wrapper">
-                            <input type="text" required>
+                            <input type="text" id="surname" required>
                         </div>
                     </div>
                 </div>
@@ -60,23 +60,22 @@
                 <div class="form-group">
                     <label class="form-label">Email</label>
                     <div class="input-wrapper">
-                        <input type="email" required>
+                        <input type="email" id="email" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Mot de passe</label>
                     <div class="input-wrapper">
-                        <input type="password" id="passwordInput" required>
-                        
-                        <img src="oeil 1.svg" id="togglePassword" class="eye-icon" alt="Voir">
+                        <input type="password" id="password" required>
+                        <img src="/static/images/oeil 1.svg" id="togglePassword" class="eye-icon" alt="Voir">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Téléphone</label>
                     <div class="input-wrapper">
-                        <input type="tel" required>
+                        <input type="tel" id="phone" required>
                     </div>
                 </div>
 
@@ -84,15 +83,18 @@
                 <div class="form-group">
                     <label class="form-label">Véhicule(s)</label>
                     <div class="input-wrapper">
-                        <input type="text" placeholder="Ex: Renault Clio, Peugeot 208..." required>
+                        <input type="text" id="vehicle" placeholder="Ex: Renault Clio, Peugeot 208...">
                     </div>
                 </div>
+                
+                <!-- Message d'erreur -->
+                <div id="errorMessage" style="color: red; margin-bottom: 10px; display: none;"></div>
                 
                 <button type="submit" class="btn-submit">S'inscrire</button>
             </form>
 
             <div class="login-footer">
-                Vous avez déjà un compte ? <a href="connexion.html">Se connecter</a>
+                Vous avez déjà un compte ? <a href="/connexion">Se connecter</a>
             </div>
         </div>
     </div>
@@ -110,8 +112,8 @@
                 <div class="footer-col">
                     <h4>Contact</h4>
                     <ul>
-                        <li><img src="icon-mail-gris.svg" class="icon-img" alt="Mail" onerror="this.style.display='none'"> contact@gocampus.fr</li>
-                        <li><img src="icon-map-gris.svg" class="icon-img" alt="Map" onerror="this.style.display='none'"> Amiens, France</li>
+                        <li><img src="/static/images/icon-mail-gris.svg" class="icon-img" alt="Mail" onerror="this.style.display='none'"> contact@gocampus.fr</li>
+                        <li><img src="/static/images/icon-map-gris.svg" class="icon-img" alt="Map" onerror="this.style.display='none'"> Amiens, France</li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -124,7 +126,9 @@
             </div>
         </div>
     </footer>
-    <script src="script.js"></script>
+    
+    <script src="/static/js/script.js"></script>
+    <script src="/static/js/auth.js"></script>
 
 </body>
 </html>

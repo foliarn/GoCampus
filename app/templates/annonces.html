@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoCampus - Mes annonces</title>
+    <!-- Police Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../static/css/annonce.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <img src="/static/images/logo.svg" alt="Logo GoCampus">
+            GoCampus
+        </a>
+        <ul class="nav-links">
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/rechercher">Rechercher</a></li>
+            <li><a href="/proposer">Proposer un trajet</a></li>
+            <li><a href="/reservations">Mes réservations</a></li>
+            <li><a href="/annonces" class="active">Mes annonces</a></li>
+            <li><a href="/connexion">Connexion</a></li>
+        </ul>
+    </nav>
+    <div class="page-title">
+    <h1>Mes Annonces (Conducteur)</h1>
+    <p>Retrouvez ici les trajets que vous avez proposés.</p>
+    </div>
+
+    <main class="annonces-container" id="annonces-container">
+        <p class="no-results-msg">Chargement...</p>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>GoCampus</h4>
+                    <p style="opacity: 0.8; line-height: 1.6;">
+                        Service de covoiturage pour les étudiants de l'Université de Picardie Jules Verne.
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><img src="../static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
+                        <li><img src="../static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>A propos</h4>
+                    <p style="opacity: 0.8; line-height: 1.6;">Un service créé par et pour les étudiants pour faciliter les déplacements.</p>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 GoCampus. Tous droits réservés.
+            </div>
+        </div>
+    </footer>
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/rides.js"></script>
+</body>
+</html>
