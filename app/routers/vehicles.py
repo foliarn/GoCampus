@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
@@ -26,7 +25,6 @@ def create_vehicle(
 ):
     """Ajoute un véhicule pour l'utilisateur connecté"""
     return crud.create_vehicle(db, vehicle, current_user.user_id)
-=======
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -84,4 +82,3 @@ def remove_vehicle(
     
     # 3. Return 204 No Content
     return
->>>>>>> 43880bd (Added vehicle GET, POST and DELETE)
