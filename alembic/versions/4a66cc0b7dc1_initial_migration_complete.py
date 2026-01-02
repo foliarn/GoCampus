@@ -50,7 +50,7 @@ def upgrade() -> None:
     op.create_table('rides',
     sa.Column('ride_id', sa.Integer(), nullable=False),
     sa.Column('driver_id', sa.Integer(), nullable=False),
-    sa.Column('car_id', sa.Integer(), nullable=False),
+    sa.Column('vehicle_id', sa.Integer(), nullable=False),
     sa.Column('address_from', sa.String(length=255), nullable=False),
     sa.Column('address_to', sa.String(length=255), nullable=False),
     sa.Column('departure', sa.TIMESTAMP(), nullable=False),
@@ -61,7 +61,7 @@ def upgrade() -> None:
     sa.CheckConstraint("status IN ('active', 'full', 'canceled', 'finished')", name='chk_ride_status'),
     sa.CheckConstraint('max_seats > 0', name='chk_trajet_places'),
     sa.CheckConstraint('price >= 0', name='chk_trajet_prix'),
-    sa.ForeignKeyConstraint(['car_id'], ['vehicles.vehicle_id'], ondelete='RESTRICT'),
+    sa.ForeignKeyConstraint(['vehicle_id'], ['vehicles.vehicle_id'], ondelete='RESTRICT'),
     sa.ForeignKeyConstraint(['driver_id'], ['users.user_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('ride_id')
     )

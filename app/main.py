@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from app.routers import auth, pages
+from app.routers import auth, pages, rides, reservations
 from app import deps, schemas
 
 app = FastAPI(title="GoCampus API")
@@ -15,6 +15,8 @@ templates = Jinja2Templates(directory="app/templates")
 # routers
 app.include_router(auth.router)
 app.include_router(pages.router)
+app.include_router(rides.router)
+app.include_router(reservations.router)
 
 # home page
 @app.get("/")
