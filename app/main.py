@@ -20,6 +20,7 @@ app.include_router(reservations.router)
 app.include_router(vehicles.router)
 app.include_router(rides.router)
 app.include_router(reservations.router)
+app.include_router(vehicles.router)
 
 # home page
 @app.get("/")
