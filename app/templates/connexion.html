@@ -7,23 +7,23 @@
     <!-- Police Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="connexion.css">
+    <link rel="stylesheet" href="/static/css/connexion.css">
 </head>
 <body>
 
     <!-- Header -->
     <nav class="navbar">
-        <a href="index.html" class="logo">
-            <img src="logo.svg" alt="Logo GoCampus">
+        <a href="/" class="logo">
+            <img src="/static/images/logo.svg" alt="Logo GoCampus">
             GoCampus
         </a>
         <ul class="nav-links">
-            <li><a href="index.html">Accueil</a></li>
-            <li><a href="rechercher.html">Rechercher</a></li>
-            <li><a href="proposer.html">Proposer un trajet</a></li>
-            <li><a href="reservations.html">Mes réservations</a></li>
-            <li><a href="annonces.html">Mes annonces</a></li>
-            <li><a href="connexion.html" class="active">Connexion</a></li>
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/rechercher">Rechercher</a></li>
+            <li><a href="/proposer">Proposer un trajet</a></li>
+            <li><a href="/reservations">Mes réservations</a></li>
+            <li><a href="/annonces">Mes annonces</a></li>
+            <li><a href="/connexion" class="active">Connexion</a></li>
         </ul>
     </nav>
 
@@ -31,21 +31,19 @@
     <div class="main-content">
         <div class="login-card">
             
-            
             <div class="login-header-wrapper">
-                <img src="logo.svg" alt="Logo" class="login-logo-img">
+                <img src="/static/images/logo.svg" alt="Logo" class="login-logo-img">
                 <h1 class="login-logo-text">GoCampus</h1>
             </div>
 
             <h2 class="login-subtitle">Connexion</h2>
 
-            <form action="#">
+            <form id="loginForm">
                 <!-- Champ Email -->
                 <div class="form-group">
                     <label class="form-label">Email</label>
                     <div class="input-wrapper">
-                        <!-- Case vide, blanche -->
-                        <input type="email" required>
+                        <input type="email" id="email" required>
                     </div>
                 </div>
 
@@ -53,19 +51,20 @@
                 <div class="form-group">
                     <label class="form-label">Mot de passe</label>
                     <div class="input-wrapper">
-                        <!-- Case vide, blanche -->
-                        <input type="password" id="passwordInput" required>
-                        
-                        <img src="oeil 1.svg" id="togglePassword" class="eye-icon" alt="Voir">
+                        <input type="password" id="password" required>
+                        <img src="/static/images/oeil 1.svg" id="togglePassword" class="eye-icon" alt="Voir">
                     </div>
                 </div>
+
+                <!-- Message d'erreur -->
+                <div id="errorMessage" style="color: red; margin-bottom: 10px; display: none;"></div>
 
                 <!-- Bouton Se connecter -->
                 <button type="submit" class="btn-submit">Se connecter</button>
             </form>
 
             <div class="login-footer">
-                Pas encore de compte ? <a href="inscription.html">S'inscrire</a>
+                Pas encore de compte ? <a href="/inscription">S'inscrire</a>
             </div>
         </div>
     </div>
@@ -83,8 +82,8 @@
                 <div class="footer-col">
                     <h4>Contact</h4>
                     <ul>
-                        <li><img src="icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
-                        <li><img src="icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
+                        <li><img src="/static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
+                        <li><img src="/static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -97,7 +96,9 @@
             </div>
         </div>
     </footer>
-    <script src="script.js"></script>
+    
+    <script src="/static/js/script.js"></script>
+    <script src="/static/js/auth.js"></script>
 
 </body>
 </html>
