@@ -72,3 +72,14 @@ def cancel_ride(
         
     crud.cancel_ride(db, ride)
     return
+
+@router.get("/user/me", response_model=List[schemas.RideOut])
+def get_my_rides(
+    current_user: schemas.UserOut = Depends(deps.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Récupère tous les trajets proposés par l'utilisateur connecté.
+    Correspond à l'appel : GET /rides/user/me
+    """
+    return crud.get_user_rides(db=db, user_id=current_user.user_id)

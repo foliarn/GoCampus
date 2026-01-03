@@ -5,7 +5,7 @@ from app import crud, schemas, deps
 from app.database import get_db
 
 router = APIRouter(
-    prefix="/api/vehicles",
+    prefix="/vehicles",
     tags=["Véhicules"]
 )
 
@@ -29,34 +29,6 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app import crud, schemas, database, deps
-
-router = APIRouter(
-    prefix="/vehicles",
-    tags=["Vehicles"]
-)
-
-@router.post("/", response_model=schemas.VehicleOut, status_code=status.HTTP_201_CREATED)
-def add_vehicle(
-    vehicle: schemas.VehicleCreate,
-    current_user: schemas.UserOut = Depends(deps.get_current_user),
-    db: Session = Depends(database.get_db)
-):
-    """
-    Adds a new vehicle and links it to the currently authenticated user.
-    """
-    # Use user_id from the authenticated user
-    return crud.create_vehicle(db=db, vehicle=vehicle, driver_id=current_user.user_id)
-
-@router.get("/", response_model=List[schemas.VehicleOut])
-def list_vehicles(
-    current_user: schemas.UserOut = Depends(deps.get_current_user),
-    db: Session = Depends(database.get_db)
-):
-    """
-    Retrieves all vehicles owned by the currently authenticated user.
-    """
-    vehicles = crud.get_vehicles_by_user(db=db, driver_id=current_user.user_id)
-    return vehicles
 
 @router.delete("/{vehicle_id}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_vehicle(

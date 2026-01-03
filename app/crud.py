@@ -27,75 +27,22 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
-# === RIDE MANAGEMENT ===
-
-def get_rides(db: Session, skip: int = 0, limit: int = 10):
-    """Récupère les trajets actifs avec leurs relations"""
-    return db.query(models.Ride)\
-        .filter(models.Ride.status == 'active')\
-        .order_by(models.Ride.departure.desc())\
-        .offset(skip)\
-        .limit(limit)\
-        .all()
-
-def get_ride_by_id(db: Session, ride_id: int):
-    return db.query(models.Ride).filter(models.Ride.ride_id == ride_id).first()
-
-def create_ride(db: Session, ride: schemas.RideCreate, driver_id: int):
-    from datetime import datetime
-    db_ride = models.Ride(
-        driver_id=driver_id,
-        vehicle_id=ride.vehicle_id,
-        address_from=ride.address_from,
-        address_to=ride.address_to,
-        departure=ride.departure,
-        max_seats=ride.max_seats,
-        price=ride.price,
-        status='active',
-        creation_time=datetime.utcnow()
-    )
-    db.add(db_ride)
-    db.commit()
-    db.refresh(db_ride)
-    return db_ride
-
-def get_user_rides(db: Session, user_id: int):
-    """Récupère les trajets proposés par un utilisateur"""
-    return db.query(models.Ride)\
-        .filter(models.Ride.driver_id == user_id)\
-        .order_by(models.Ride.departure.desc())\
-        .all()
-
-# === RESERVATION MANAGEMENT ===
-
-def get_user_reservations(db: Session, user_id: int):
-    """Récupère les réservations d'un utilisateur"""
-    return db.query(models.Reservation)\
-        .filter(models.Reservation.passenger_id == user_id)\
-        .order_by(models.Reservation.reservation_date.desc())\
-        .all()
-
-def create_reservation(db: Session, reservation: schemas.ReservationCreate, user_id: int):
-    from datetime import datetime
-    db_reservation = models.Reservation(
-        ride_id=reservation.ride_id,
-        passenger_id=user_id,
-        seats_booked=reservation.seats_booked,
-        status='waiting',
-        reservation_date=datetime.utcnow()
-    )
-    db.add(db_reservation)
-    db.commit()
-    db.refresh(db_reservation)
-    return db_reservation
-
 # === VEHICLE MANAGEMENT ===
 
 def get_user_vehicles(db: Session, user_id: int):
-    """Récupère les véhicules d'un utilisateur"""
-    return db.query(models.Vehicle)\
-        .filter(models.Vehicle.driver_id == user_id)\
-        .all()
+    """Récupère les véhicules d'un utilisateur (Alias pour compatibilité)"""
+    return db.query(models.Vehicle).filter(models.Vehicle.driver_id == user_id).all()
+
+def get_vehicles_by_user(db: Session, driver_id: int) -> List[models.Vehicle]:
+    """Return all vehicles owned by a specific user."""
+    return db.query(models.Vehicle).filter(models.Vehicle.driver_id == driver_id).all()
+
+def get_vehicle_by_id_and_owner(db: Session, vehicle_id: int, driver_id: int) -> Optional[models.Vehicle]:
+    """Retrieve a specific vehicle only if it belongs to the given user."""
+    return db.query(models.Vehicle).filter(
+        models.Vehicle.vehicle_id == vehicle_id,
+        models.Vehicle.driver_id == driver_id
+    ).first()
 
 def create_vehicle(db: Session, vehicle: schemas.VehicleCreate, user_id: int):
     db_vehicle = models.Vehicle(
@@ -110,24 +57,13 @@ def create_vehicle(db: Session, vehicle: schemas.VehicleCreate, user_id: int):
     db.refresh(db_vehicle)
     return db_vehicle
 
-def get_vehicles_by_user(db: Session, driver_id: int) -> List[models.Vehicle]:
-    """Return all vehicles owned by a specific user."""
-    return db.query(models.Vehicle).filter(models.Vehicle.driver_id == driver_id).all()
-
-def get_vehicle_by_id_and_owner(db: Session, vehicle_id: int, driver_id: int) -> Optional[models.Vehicle]:
-    """Retrieve a specific vehicle only if it belongs to the given user."""
-    return db.query(models.Vehicle).filter(
-        models.Vehicle.vehicle_id == vehicle_id,
-        models.Vehicle.driver_id == driver_id
-    ).first()
-
 def delete_vehicle(db: Session, vehicle: models.Vehicle):
     """Delete a specific vehicle."""
     db.delete(vehicle)
     db.commit()
     return {"message": "Vehicle successfully deleted"}
 
- # === RIDES ===
+# === RIDES ===
 
 def create_ride(db: Session, ride: schemas.RideCreate, driver_id: int):
     """
@@ -187,9 +123,16 @@ def get_ride_by_id(db: Session, ride_id: int):
     """
     return db.query(models.Ride).filter(models.Ride.ride_id == ride_id).first()
 
+def get_user_rides(db: Session, user_id: int):
+    """Récupère les trajets proposés par un utilisateur"""
+    return db.query(models.Ride)\
+        .filter(models.Ride.driver_id == user_id)\
+        .order_by(models.Ride.departure.desc())\
+        .all()
+
 def cancel_ride(db: Session, ride: models.Ride):
     """
-    Deletes a ride from the database.
+    Deletes a ride from the database (or marks as canceled).
     """
     ride.status = "canceled"
     db.commit()
@@ -212,7 +155,7 @@ def get_remaining_seats(db: Session, ride_id: int) -> int:
         .filter(
             models.Reservation.ride_id == ride_id,
             models.Reservation.status.in_(['waiting', 'confirmed'])
-        ).scalar() or 0 # .scalar() returns None if no reservations, so we use 'or 0'
+        ).scalar() or 0 
         
     return ride.max_seats - seats_taken
 

@@ -52,7 +52,7 @@ async function loadVehicles() {
     if (!select) return;
 
     try {
-        const response = await fetchWithAuth('/api/vehicles/me');
+        const response = await fetchWithAuth('/vehicles/me');
         
         if (response.ok) {
             const vehicles = await response.json();
@@ -116,7 +116,7 @@ if (rideForm) {
         }
 
         try {
-            const response = await fetchWithAuth('/api/rides/', {
+            const response = await fetchWithAuth('/rides/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -188,7 +188,7 @@ if (vehicleForm) {
         };
 
         try {
-            const response = await fetchWithAuth('/api/vehicles/', {
+            const response = await fetchWithAuth('/vehicles/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

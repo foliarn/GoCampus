@@ -7,7 +7,7 @@ async function loadRides(containerId, limit = 4) {
     if (!container) return;
 
     try {
-        const response = await fetch(`/api/rides/?limit=${limit}`);
+        const response = await fetch(`/rides/?limit=${limit}`);
         
         if (!response.ok) {
             throw new Error('Erreur lors du chargement des trajets');
@@ -98,7 +98,7 @@ document.addEventListener('click', async function(e) {
         if (!rideId) return;
 
         try {
-            const response = await fetchWithAuth('/api/reservations/', {
+            const response = await fetchWithAuth('/reservations/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -131,7 +131,7 @@ async function loadMyReservations(containerId) {
     if (!container) return;
 
     try {
-        const response = await fetchWithAuth('/api/reservations/me');
+        const response = await fetchWithAuth('/reservations/me');
         
         if (!response.ok) {
             throw new Error('Erreur lors du chargement');
@@ -200,7 +200,7 @@ async function loadMyRides(containerId) {
     if (!container) return;
 
     try {
-        const response = await fetchWithAuth('/api/rides/user/me');
+        const response = await fetchWithAuth('/rides/user/me');
         
         if (!response.ok) {
             throw new Error('Erreur lors du chargement');
