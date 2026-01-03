@@ -140,7 +140,7 @@
         
         input[type="date"] {
             
-            background: url('icon-calendar.svg') no-repeat right 15px center;
+            background: url('/static/images/icon-calendar.svg') no-repeat right 15px center;
             background-size: 20px; 
             background-color: transparent; 
             cursor: pointer; 

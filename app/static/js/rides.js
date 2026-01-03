@@ -249,7 +249,7 @@ function createMyRideCard(ride) {
 document.addEventListener('DOMContentLoaded', function() {
     // Page d'accueil - charger les derniers trajets
     if (document.getElementById('rides-grid')) {
-        loadRides('rides-grid', 4);
+        loadRides('rides-grid', 3);
     }
 
     // Page réservations
