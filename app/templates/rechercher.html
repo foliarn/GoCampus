@@ -4,17 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoCampus - Rechercher</title>
-    <!-- Police Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="../static/css/rechercher.css">
+    <link rel="stylesheet" href="/static/css/rechercher.css">
 </head>
 <body>
 
     <!-- Header -->
     <nav class="navbar">
         <a href="/" class="logo">
-            <img src="../static/images/logo.svg" alt="Logo GoCampus">
+            <img src="/static/images/logo.svg" alt="Logo GoCampus">
             GoCampus
         </a>
         <ul class="nav-links">
@@ -37,22 +35,30 @@
         
         <!-- Formulaire de recherche -->
         <div class="search-card">
-            <form action="#">
+            
+            <!-- Message d'erreur API -->
+            <div id="apiError" class="api-error" style="display: none;">
+                ⚠️ Google Maps n'est pas configuré. Vérifiez votre clé API.
+            </div>
+            
+            <!-- Toggle direction -->
+            <div class="direction-toggle">
+                <button type="button" id="toIutBtn" class="active" onclick="setSearchDirection(false)">
+                    🏠 → 🎓 Je vais à l'IUT
+                </button>
+                <button type="button" id="fromIutBtn" onclick="setSearchDirection(true)">
+                    🎓 → 🏠 Je pars de l'IUT
+                </button>
+            </div>
+            
+            <form id="searchForm">
                 <div class="search-form-grid">
                     
-                    <!-- Départ -->
+                    <!-- Adresse avec nouveau composant Google -->
                     <div class="form-group">
-                        <label class="form-label">Départ</label>
-                        <div class="input-wrapper">
-                            <input type="text" placeholder="Ville de départ" required>
-                        </div>
-                    </div>
-
-                    <!-- Arrivée -->
-                    <div class="form-group">
-                        <label class="form-label">Arrivée</label>
-                        <div class="input-wrapper">
-                            <input type="text" value="IUT Amiens">
+                        <label class="form-label" id="addressLabel">Mon adresse de départ</label>
+                        <div class="autocomplete-container" id="autocompleteContainer">
+                            <!-- Le PlaceAutocompleteElement sera inséré ici par JS -->
                         </div>
                     </div>
 
@@ -60,26 +66,41 @@
                     <div class="form-group">
                         <label class="form-label">Date</label>      
                         <div class="input-wrapper">
-                            <input type="date" required> 
+                            <input type="date" id="searchDate" required> 
+                        </div>
+                    </div>
+                    
+                    <!-- Heure -->
+                    <div class="form-group">
+                        <label class="form-label">Heure souhaitée</label>      
+                        <div class="input-wrapper">
+                            <input type="time" id="searchTime" required> 
                         </div>
                     </div>
 
                     <!-- Bouton Rechercher -->
                     <button type="submit" class="btn-search-large">
-                        <img src="../static/images/icon-search.svg" alt="Search" class="icon-img" style="filter: brightness(0) invert(1);">
-                        Rechercher
+                        🔍 Rechercher
                     </button>
                 </div>
+                
+                <!-- Champs cachés pour les coordonnées -->
+                <input type="hidden" id="searchLat">
+                <input type="hidden" id="searchLng">
+                <input type="hidden" id="searchAddressFormatted">
+                <input type="hidden" id="searchFromIut" value="false">
             </form>
+            
+            <div id="searchInfo" class="search-info">
+                <p>📍 Recherche des trajets à moins de <strong>5 km</strong> de votre adresse, départ entre <strong id="timeRange">--</strong></p>
+            </div>
         </div>
 
-        <!-- Résultats (Message "Aucun trajet...") A gerer avec BD  -->
-        <div class="results-area">
-            <p class="no-results-msg">Aucun trajet trouvé pour ces critères</p>
-            
-            <div class="action-links">
-                <a href="#" class="text-link">Voir les derniers trajets publiés</a>
-                <a href="rechercher.html" class="text-link" style="color: var(--gray-text); border-bottom: 1px solid #ccc;">Réinitialiser les filtres</a>
+        <!-- Zone de résultats -->
+        <div id="resultsArea">
+            <div class="no-results">
+                <h3>🚗 Trouvez votre covoiturage</h3>
+                <p>Entrez votre adresse et sélectionnez une date pour rechercher des trajets près de chez vous</p>
             </div>
         </div>
 
@@ -98,8 +119,8 @@
                 <div class="footer-col">
                     <h4>Contact</h4>
                     <ul>
-                        <li><img src="../static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
-                        <li><img src="../static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
+                        <li><img src="/static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
+                        <li><img src="/static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -112,6 +133,38 @@
             </div>
         </div>
     </footer>
+    
+    <!-- Google Maps API - Chargement dynamique -->
+    <script>
+        async function loadGoogleMapsAPI() {
+            try {
+                const response = await fetch('/api/config/maps');
+                const config = await response.json();
+                
+                if (config.api_key && config.api_key.length > 0) {
+                    const script = document.createElement('script');
+                    script.src = `https://maps.googleapis.com/maps/api/js?key=${config.api_key}&libraries=places&callback=initSearchAutocomplete&loading=async`;
+                    script.async = true;
+                    script.defer = true;
+                    script.onerror = function() {
+                        console.error('Erreur de chargement de Google Maps API');
+                        document.getElementById('apiError').style.display = 'block';
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    console.warn('Clé API Google Maps non configurée');
+                    document.getElementById('apiError').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de la config Google Maps:', error);
+                document.getElementById('apiError').style.display = 'block';
+            }
+        }
+        
+        loadGoogleMapsAPI();
+    </script>
+    
     <script src="/static/js/auth.js"></script>
+    <script src="/static/js/rechercher.js"></script>
 </body>
 </html>

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>GoCampus - Proposer un trajet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/proposer.css">
 </head>
@@ -37,13 +36,60 @@
             </div>
 
             <div class="trajet-card-body">
+                
+                <!-- Message d'erreur API -->
+                <div id="apiError" class="api-error">
+                    ⚠️ Google Maps n'est pas configuré. Vérifiez votre clé API.
+                </div>
+                
+                <!-- Toggle direction -->
+                <div class="direction-toggle">
+                    <button type="button" id="toIutBtn" class="active" onclick="setDirection(false)">
+                        🏠 → 🎓 Aller à l'IUT
+                    </button>
+                    <button type="button" id="fromIutBtn" onclick="setDirection(true)">
+                        🎓 → 🏠 Partir de l'IUT
+                    </button>
+                </div>
+
                 <form id="rideForm">
+                    
+                    <!-- Adresse de départ -->
+                    <div class="address-section" id="departureSection">
+                        <label id="departureLabel">Départ</label>
+                        <div class="autocomplete-container" id="autocompleteContainerFrom">
+                            <!-- PlaceAutocompleteElement inséré ici par JS -->
+                        </div>
+                        <!-- Affichage de l'adresse sélectionnée -->
+                        <div id="selectedAddressDisplay" class="selected-address"></div>
+                    </div>
+                    
+                    <!-- Indicateur de direction -->
+                    <div class="direction-indicator">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        </svg>
+                    </div>
+                    
+                    <!-- Adresse d'arrivée -->
+                    <div class="address-section" id="arrivalSection">
+                        <label id="arrivalLabel">Arrivée (IUT Amiens)</label>
+                        <input type="text" id="iutAddressDisplay" class="iut-address" value="IUT Amiens - Avenue des Facultés, 80000 Amiens" disabled>
+                    </div>
 
-                    <label>Départ</label>
-                    <input type="text" id="addressFrom" placeholder="Ville de départ" required>
+                    <!-- Champs cachés pour les coordonnées -->
+                    <input type="hidden" id="addressLat">
+                    <input type="hidden" id="addressLng">
+                    <input type="hidden" id="addressFormatted">
+                    <input type="hidden" id="fromIut" value="false">
 
-                    <label>Arrivée</label>
-                    <input type="text" id="addressTo" value="IUT Amiens" required>
+                    <!-- Info route (affichée après sélection d'adresse) -->
+                    <div id="routeInfo" class="route-info">
+                        <p>
+                            <span>📍 Distance : <strong id="routeDistance">--</strong></span>
+                            <span>⏱️ Durée : <strong id="routeDuration">--</strong></span>
+                        </p>
+                    </div>
 
                     <div class="row">
                         <div>
@@ -74,49 +120,49 @@
                     </select>
 
                     <!-- Message d'erreur -->
-                    <div id="errorMessage" style="color: red; margin: 10px 0; display: none;"></div>
+                    <div id="errorMessage" class="error-message"></div>
 
                     <!-- Message de succès -->
-                    <div id="successMessage" style="color: green; margin: 10px 0; display: none;"></div>
+                    <div id="successMessage" class="success-message"></div>
 
                     <button type="submit" class="publish-btn">Publier le trajet</button>
 
                 </form>
 
                 <!-- Lien pour ajouter un véhicule si aucun -->
-                <p id="noVehicleMsg" style="display: none; margin-top: 15px; text-align: center; color: #6B7280;">
+                <p id="noVehicleMsg" class="no-vehicle-msg">
                     Vous n'avez pas de véhicule enregistré. 
-                    <a href="#" id="addVehicleLink" style="color: #0072CE; text-decoration: underline;">Ajouter un véhicule</a>
+                    <a href="#" id="addVehicleLink">Ajouter un véhicule</a>
                 </p>
             </div>
         </div>
 
-        <!-- Modal pour ajouter un véhicule -->
-        <div id="vehicleModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-            <div style="background: white; padding: 30px; border-radius: 12px; max-width: 400px; width: 90%;">
-                <h2 style="margin-bottom: 20px; color: #003366;">Ajouter un véhicule</h2>
-                <form id="vehicleForm">
-                    <label>Modèle</label>
-                    <input type="text" id="vehicleModel" placeholder="Ex: Renault Clio" required>
-                    
-                    <label>Plaque d'immatriculation</label>
-                    <input type="text" id="licensePlate" placeholder="Ex: AB-123-CD" required>
-                    
-                    <label>Couleur</label>
-                    <input type="text" id="vehicleColor" placeholder="Ex: Bleu">
-                    
-                    <label>Nombre de places</label>
-                    <input type="number" id="vehicleSeats" min="1" max="8" value="4" required>
-                    
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button type="submit" class="publish-btn" style="flex: 1;">Ajouter</button>
-                        <button type="button" id="closeModal" style="flex: 1; background: #ccc; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Annuler</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
     </main>
+
+    <!-- Modal pour ajouter un véhicule (EN DEHORS de la carte) -->
+    <div id="vehicleModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Ajouter un véhicule</h2>
+            <form id="vehicleForm">
+                <label>Modèle</label>
+                <input type="text" id="vehicleModel" placeholder="Ex: Renault Clio" required>
+                
+                <label>Plaque d'immatriculation</label>
+                <input type="text" id="licensePlate" placeholder="Ex: AB-123-CD" required>
+                
+                <label>Couleur</label>
+                <input type="text" id="vehicleColor" placeholder="Ex: Bleu">
+                
+                <label>Nombre de places</label>
+                <input type="number" id="vehicleSeats" min="1" max="8" value="4" required>
+                
+                <div class="modal-buttons">
+                    <button type="submit" class="publish-btn">Ajouter</button>
+                    <button type="button" id="closeModal" class="cancel-btn">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer>
@@ -146,6 +192,39 @@
         </div>
     </footer>
 
+    <!-- Google Maps API - Chargement dynamique -->
+    <script>
+        const IUT_COORDS = { lat: 49.8847, lng: 2.2637 };
+        const IUT_ADDRESS = "IUT Amiens - Avenue des Facultés, 80000 Amiens";
+        
+        async function loadGoogleMapsAPI() {
+            try {
+                const response = await fetch('/api/config/maps');
+                const config = await response.json();
+                
+                if (config.api_key && config.api_key.length > 0) {
+                    const script = document.createElement('script');
+                    script.src = `https://maps.googleapis.com/maps/api/js?key=${config.api_key}&libraries=places&callback=initAutocomplete&loading=async`;
+                    script.async = true;
+                    script.defer = true;
+                    script.onerror = function() {
+                        console.error('Erreur de chargement de Google Maps API');
+                        document.getElementById('apiError').style.display = 'block';
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    console.warn('Clé API Google Maps non configurée');
+                    document.getElementById('apiError').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de la config Google Maps:', error);
+                document.getElementById('apiError').style.display = 'block';
+            }
+        }
+        
+        loadGoogleMapsAPI();
+    </script>
+    
     <script src="/static/js/auth.js"></script>
     <script src="/static/js/proposer.js"></script>
 

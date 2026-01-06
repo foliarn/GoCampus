@@ -41,3 +41,8 @@ def reservations(request: Request):
 @router.get("/annonces")
 def annonces(request: Request):
     return templates.TemplateResponse("annonces.html", {"request": request})
+
+# Test Google Maps API
+@router.get("/test-maps")
+def test_maps(request: Request):
+    return templates.TemplateResponse("test_maps.html", {"request": request})
