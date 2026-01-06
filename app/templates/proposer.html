@@ -5,11 +5,11 @@
     <title>GoCampus - Proposer un trajet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/proposer.css">
 </head>
 <body>
 
-    <!-- Header -->
     <nav class="navbar">
         <a href="/" class="logo">
             <img src="/static/images/logo.svg" alt="Logo GoCampus">
@@ -25,208 +25,130 @@
         </ul>
     </nav>
 
-    <!-- CONTENU PAGE -->
     <main class="trajet-page">
-
         <div class="trajet-card">
-
             <div class="trajet-card-header">
                 <h1>Proposer un trajet</h1>
-                <p id="driverName">Connectez-vous pour proposer un trajet</p>
+                <p id="driverName">Chargement du profil...</p>
             </div>
 
             <div class="trajet-card-body">
+                <div id="apiError" class="api-error">⚠️ Erreur de configuration Google Maps.</div>
                 
-                <!-- Message d'erreur API -->
-                <div id="apiError" class="api-error">
-                    ⚠️ Google Maps n'est pas configuré. Vérifiez votre clé API.
-                </div>
-                
-                <!-- Toggle direction -->
                 <div class="direction-toggle">
-                    <button type="button" id="toIutBtn" class="active" onclick="setDirection(false)">
-                        🏠 → 🎓 Aller à l'IUT
-                    </button>
-                    <button type="button" id="fromIutBtn" onclick="setDirection(true)">
-                        🎓 → 🏠 Partir de l'IUT
-                    </button>
+                    <button type="button" id="toIutBtn" class="active" onclick="setDirection(false)">Aller à l'IUT</button>
+                    <button type="button" id="fromIutBtn" onclick="setDirection(true)">Partir de l'IUT</button>
                 </div>
 
                 <form id="rideForm">
-                    
-                    <!-- Adresse de départ -->
                     <div class="address-section" id="departureSection">
-                        <label id="departureLabel">Départ</label>
-                        <div class="autocomplete-container" id="autocompleteContainerFrom">
-                            <!-- PlaceAutocompleteElement inséré ici par JS -->
-                        </div>
-                        <!-- Affichage de l'adresse sélectionnée -->
-                        <div id="selectedAddressDisplay" class="selected-address"></div>
+                        <label id="departureLabel">Point de départ</label>
+                        <div class="autocomplete-container" id="autocompleteContainerFrom"></div>
+                        <div id="selectedAddressDisplay" class="selected-address-confirmation"></div>
                     </div>
                     
-                    <!-- Indicateur de direction -->
                     <div class="direction-indicator">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <!-- Styles inline forcés pour la taille -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:24px; height:24px; display:block;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                         </svg>
                     </div>
                     
-                    <!-- Adresse d'arrivée -->
                     <div class="address-section" id="arrivalSection">
-                        <label id="arrivalLabel">Arrivée (IUT Amiens)</label>
-                        <input type="text" id="iutAddressDisplay" class="iut-address" value="IUT Amiens - Avenue des Facultés, 80000 Amiens" disabled>
+                        <label id="arrivalLabel">Point d'arrivée (IUT Amiens)</label>
+                        <input type="text" class="iut-address" value="IUT Amiens - Avenue des Facultés" disabled>
                     </div>
 
-                    <!-- Champs cachés pour les coordonnées -->
-                    <input type="hidden" id="addressLat">
-                    <input type="hidden" id="addressLng">
-                    <input type="hidden" id="addressFormatted">
-                    <input type="hidden" id="fromIut" value="false">
+                    <input type="hidden" id="addressLat"><input type="hidden" id="addressLng">
+                    <input type="hidden" id="addressFormatted"><input type="hidden" id="fromIut" value="false">
 
-                    <!-- Info route (affichée après sélection d'adresse) -->
                     <div id="routeInfo" class="route-info">
-                        <p>
-                            <span>📍 Distance : <strong id="routeDistance">--</strong></span>
-                            <span>⏱️ Durée : <strong id="routeDuration">--</strong></span>
-                        </p>
+                        <p>🚗 <strong id="routeDistance">--</strong> | ⏱️ <strong id="routeDuration">--</strong></p>
                     </div>
 
-                    <div class="row">
-                        <div>
+                    <div class="form-grid">
+                        <div class="form-group">
                             <label>Date</label>
-                            <input type="date" id="date" required>
+                            <input type="date" id="date" class="form-input" required>
                         </div>
-                        <div>
+                        <div class="form-group">
                             <label>Heure</label>
-                            <input type="time" id="time" required>
+                            <input type="time" id="time" class="form-input" required>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div>
-                            <label>Prix par passager (€)</label>
-                            <input type="number" id="price" min="0" max="50" step="0.10" placeholder="1.50" required>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Prix (€)</label>
+                            <input type="number" id="price" class="form-input" min="0" step="0.5" placeholder="2.00" required>
                         </div>
-                        <div>
-                            <label>Places disponibles</label>
-                            <input type="number" id="maxSeats" min="1" max="8" value="3" required>
+                        <div class="form-group">
+                            <label>Places dispos</label>
+                            <input type="number" id="maxSeats" class="form-input" min="1" max="8" value="3" required>
                         </div>
                     </div>
 
-                    <!-- Sélection du véhicule -->
-                    <label>Véhicule</label>
-                    <select id="vehicleId" required>
-                        <option value="">-- Sélectionnez un véhicule --</option>
-                    </select>
+                    <div class="form-group">
+                        <label>Véhicule</label>
+                        <select id="vehicleId" class="vehicle-select" required>
+                            <option value="">-- Sélectionnez --</option>
+                        </select>
+                    </div>
 
-                    <!-- Message d'erreur -->
+                    <div class="add-vehicle-section">
+                        <a href="#" id="addVehicleLink" class="btn-add-vehicle">
+                            <!-- Styles inline forcés pour la taille -->
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px; height:18px; display:inline-block;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Nouveau véhicule
+                        </a>
+                    </div>
+
                     <div id="errorMessage" class="error-message"></div>
-
-                    <!-- Message de succès -->
                     <div id="successMessage" class="success-message"></div>
 
                     <button type="submit" class="publish-btn">Publier le trajet</button>
-
                 </form>
-
-                <!-- Lien pour ajouter un véhicule si aucun -->
-                <p id="noVehicleMsg" class="no-vehicle-msg">
-                    Vous n'avez pas de véhicule enregistré. 
-                    <a href="#" id="addVehicleLink">Ajouter un véhicule</a>
-                </p>
             </div>
         </div>
-
     </main>
 
-    <!-- Modal pour ajouter un véhicule (EN DEHORS de la carte) -->
     <div id="vehicleModal" class="modal-overlay">
         <div class="modal-box">
-            <h2>Ajouter un véhicule</h2>
+            <h2>Nouveau véhicule</h2>
             <form id="vehicleForm">
-                <label>Modèle</label>
-                <input type="text" id="vehicleModel" placeholder="Ex: Renault Clio" required>
-                
-                <label>Plaque d'immatriculation</label>
-                <input type="text" id="licensePlate" placeholder="Ex: AB-123-CD" required>
-                
-                <label>Couleur</label>
-                <input type="text" id="vehicleColor" placeholder="Ex: Bleu">
-                
-                <label>Nombre de places</label>
-                <input type="number" id="vehicleSeats" min="1" max="8" value="4" required>
-                
+                <div class="form-group"><label>Modèle</label><input type="text" id="vehicleModel" class="form-input" required></div>
+                <div class="form-group"><label>Plaque</label><input type="text" id="licensePlate" class="form-input" required></div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Couleur</label><input type="text" id="vehicleColor" class="form-input"></div>
+                    <div class="form-group"><label>Places</label><input type="number" id="vehicleSeats" class="form-input" value="4" required></div>
+                </div>
                 <div class="modal-buttons">
-                    <button type="submit" class="publish-btn">Ajouter</button>
                     <button type="button" id="closeModal" class="cancel-btn">Annuler</button>
+                    <button type="submit" class="publish-btn">Enregistrer</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h4>GoCampus</h4>
-                    <p style="opacity: 0.8; line-height: 1.6;">
-                        Service de covoiturage pour les étudiants de l'Université de Picardie Jules Verne.
-                    </p>
-                </div>
-                <div class="footer-col">
-                    <h4>Contact</h4>
-                    <ul>
-                        <li><img src="/static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
-                        <li><img src="/static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>A propos</h4>
-                    <p style="opacity: 0.8; line-height: 1.6;">Un service créé par et pour les étudiants pour faciliter les déplacements.</p>
-                </div>
-            </div>
-            <div class="copyright">
-                &copy; 2025 GoCampus. Tous droits réservés.
-            </div>
-        </div>
-    </footer>
-
-    <!-- Google Maps API - Chargement dynamique -->
     <script>
-        const IUT_COORDS = { lat: 49.8847, lng: 2.2637 };
-        const IUT_ADDRESS = "IUT Amiens - Avenue des Facultés, 80000 Amiens";
-        
         async function loadGoogleMapsAPI() {
             try {
                 const response = await fetch('/api/config/maps');
                 const config = await response.json();
-                
-                if (config.api_key && config.api_key.length > 0) {
+                if (config.api_key) {
                     const script = document.createElement('script');
-                    script.src = `https://maps.googleapis.com/maps/api/js?key=${config.api_key}&libraries=places&callback=initAutocomplete&loading=async`;
-                    script.async = true;
-                    script.defer = true;
-                    script.onerror = function() {
-                        console.error('Erreur de chargement de Google Maps API');
-                        document.getElementById('apiError').style.display = 'block';
-                    };
+                    // Ajout de v=weekly pour assurer la version supportant Web Components
+                    script.src = `https://maps.googleapis.com/maps/api/js?key=${config.api_key}&loading=async&v=weekly&callback=initAutocomplete`;
+                    script.async = true; script.defer = true;
                     document.head.appendChild(script);
-                } else {
-                    console.warn('Clé API Google Maps non configurée');
-                    document.getElementById('apiError').style.display = 'block';
                 }
-            } catch (error) {
-                console.error('Erreur lors du chargement de la config Google Maps:', error);
-                document.getElementById('apiError').style.display = 'block';
-            }
+            } catch (error) { console.error('Maps Config Error:', error); }
         }
-        
         loadGoogleMapsAPI();
     </script>
-    
     <script src="/static/js/auth.js"></script>
     <script src="/static/js/proposer.js"></script>
-
 </body>
 </html>

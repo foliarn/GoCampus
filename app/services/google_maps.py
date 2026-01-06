@@ -40,20 +40,17 @@ class GoogleMapsService:
     
     def __init__(self):
         self.api_key = settings.GOOGLE_MAPS_API_KEY
+        # On ne lève plus d'erreur ici pour éviter de bloquer l'app si la clé manque
         if not self.api_key:
-            raise GoogleMapsError("GOOGLE_MAPS_API_KEY n'est pas configurée dans .env")
+            print("⚠️ Attention: GOOGLE_MAPS_API_KEY non configurée.")
     
     async def geocode_address(self, address: str) -> Optional[GeocodingResult]:
         """
         Convertit une adresse en coordonnées GPS.
-        
-        Args:
-            address: L'adresse à géocoder (ex: "15 Rue de la Gare, 60100 Creil")
-            
-        Returns:
-            GeocodingResult avec l'adresse formatée et les coordonnées,
-            ou None si l'adresse n'est pas trouvée.
         """
+        if not self.api_key:
+            return None
+
         params = {
             "address": address,
             "key": self.api_key,
@@ -68,7 +65,9 @@ class GoogleMapsService:
         if data["status"] != "OK":
             if data["status"] == "ZERO_RESULTS":
                 return None
-            raise GoogleMapsError(f"Erreur Geocoding API: {data['status']}")
+            # Inclure le message d'erreur détaillé s'il existe
+            error_msg = data.get("error_message", "Aucun détail fourni par Google")
+            raise GoogleMapsError(f"Erreur Geocoding API: {data['status']} - {error_msg}")
         
         result = data["results"][0]
         location = result["geometry"]["location"]
@@ -88,14 +87,10 @@ class GoogleMapsService:
     ) -> Optional[RouteResult]:
         """
         Calcule la distance et la durée entre deux points.
-        
-        Args:
-            origin_lat, origin_lng: Coordonnées du point de départ
-            dest_lat, dest_lng: Coordonnées du point d'arrivée
-            
-        Returns:
-            RouteResult avec distance et durée, ou None si aucun itinéraire trouvé.
         """
+        if not self.api_key:
+            return None
+
         params = {
             "origin": f"{origin_lat},{origin_lng}",
             "destination": f"{dest_lat},{dest_lng}",
@@ -111,7 +106,9 @@ class GoogleMapsService:
         if data["status"] != "OK":
             if data["status"] == "ZERO_RESULTS":
                 return None
-            raise GoogleMapsError(f"Erreur Directions API: {data['status']}")
+            # Inclure le message d'erreur détaillé s'il existe (CRUCIAL pour le debug)
+            error_msg = data.get("error_message", "Aucun détail fourni par Google")
+            raise GoogleMapsError(f"Erreur Directions API: {data['status']} - {error_msg}")
         
         # Prendre le premier itinéraire et la première étape
         route = data["routes"][0]
@@ -139,9 +136,6 @@ class GoogleMapsService:
     ) -> Tuple[Optional[GeocodingResult], Optional[GeocodingResult], Optional[RouteResult]]:
         """
         Géocode les deux adresses et calcule l'itinéraire.
-        
-        Returns:
-            Tuple (origin_geocoded, dest_geocoded, route_result)
         """
         origin = await self.geocode_address(origin_address)
         if not origin:
@@ -163,9 +157,6 @@ def calculate_distance_km(lat1: float, lng1: float, lat2: float, lng2: float) ->
     """
     Calcule la distance à vol d'oiseau entre deux points (formule de Haversine).
     Utilisé pour la recherche par proximité sans appel API.
-    
-    Returns:
-        Distance en kilomètres
     """
     from math import radians, sin, cos, sqrt, atan2
     

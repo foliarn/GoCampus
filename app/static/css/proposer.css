@@ -1,74 +1,225 @@
-/* ============================================
-   TOGGLE DIRECTION - BOUTONS ALLER/PARTIR IUT
-   ============================================ */
+:root {
+    --primary-blue: #0072CE;
+    --dark-blue: #003366;
+    --bg-light: #F8F9FA;
+    --white: #FFFFFF;
+    --text-dark: #1F2937;
+    --text-gray: #6B7280;
+    --border-color: #E5E7EB;
+    --radius: 12px;
+}
 
+/* --- RESET & BASE --- */
+.trajet-page {
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    min-height: calc(100vh - 80px);
+}
+
+.trajet-card {
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 600px;
+    padding: 40px;
+}
+
+/* --- ICONES --- */
+.direction-indicator svg {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px;
+    min-height: 24px;
+    display: block;
+    margin: 0 auto;
+    color: #D1D5DB;
+}
+
+.btn-add-vehicle svg {
+    width: 18px !important;
+    height: 18px !important;
+    flex-shrink: 0;
+}
+
+/* --- TOGGLE DIRECTION --- */
 .direction-toggle {
     display: flex;
-    background: #f1f3f5;
-    border-radius: 8px;
-    padding: 4px;
-    margin-bottom: 20px;
-    gap: 4px;
+    background: #F3F4F6;
+    border-radius: var(--radius);
+    padding: 5px;
+    margin-bottom: 30px;
+    gap: 5px;
 }
 
 .direction-toggle button {
     flex: 1;
-    padding: 12px 16px;
+    padding: 12px;
     border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-gray);
     background: transparent;
     cursor: pointer;
-    border-radius: 6px;
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #6B7280;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
 }
 
 .direction-toggle button.active {
-    background: linear-gradient(135deg, #003366 0%, #0072CE 100%);
-    color: white;
-    box-shadow: 0 2px 8px rgba(0, 114, 206, 0.3);
+    background: var(--white);
+    color: var(--primary-blue);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.direction-toggle button:hover:not(.active) {
-    background: #e5e7eb;
-    color: #1F2937;
+/* --- SECTIONS ADRESSE --- */
+.address-section {
+    margin-bottom: 20px; /* Plus d'espace */
+    margin-top: 10px;
 }
 
-/* ============================================
-   ADRESSE SÉLECTIONNÉE
-   ============================================ */
+.address-section label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 10px; /* Plus d'espace sous le label */
+    font-size: 0.9rem;
+}
 
-.selected-address {
-    margin-top: 8px;
-    padding: 10px 12px;
-    background: #e8f5e9;
-    border: 1px solid #4CAF50;
-    border-radius: 6px;
-    color: #2e7d32;
+/* --- FORMULAIRE --- */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.form-group label {
     font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-gray);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.form-input, .vehicle-select, .iut-address {
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 1rem;
+    outline: none;
+    background: var(--white);
+    width: 100%;
+}
+
+.iut-address {
+    background-color: #F3F4F6;
+    color: var(--text-gray);
+    cursor: not-allowed;
+}
+
+/* --- AUTOCOMPLETE CONTAINER --- */
+.autocomplete-container {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background: white;
+    min-height: 50px; 
+    margin-bottom: 15px; /* Marge confortable en dessous */
+    margin-top: 5px;     /* Marge confortable au dessus */
+}
+
+/* Confirmation d'adresse sélectionnée */
+.selected-address-confirmation {
+    font-size: 0.85rem;
+    color: #059669; /* Vert */
+    background-color: #ECFDF5;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-top: 10px;
+    display: none; 
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #A7F3D0;
+}
+
+gmp-place-autocomplete {
+    width: 100%;
+    display: block; 
+}
+
+/* --- SECTION AJOUT VEHICULE --- */
+.add-vehicle-section {
+    text-align: center;
+    margin: 25px 0 30px 0;
+}
+
+.btn-add-vehicle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #EFF6FF;
+    color: var(--primary-blue);
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.btn-add-vehicle:hover { background: #DBEAFE; }
+
+.publish-btn {
+    width: 100%;
+    background-color: var(--primary-blue);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 16px;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.publish-btn:hover { background-color: #005bb5; }
+
+/* --- MESSAGES & MODAL --- */
+.route-info {
+    background: #F0FDF4;
+    border: 1px solid #86EFAC;
+    border-radius: var(--radius);
+    padding: 15px;
+    margin: 20px 0;
     display: none;
 }
 
-.selected-address .selected-icon {
-    color: #4CAF50;
-    font-weight: bold;
-    margin-right: 6px;
+.api-error, .error-message, .success-message {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    display: none;
 }
 
-/* ============================================
-   MODAL OVERLAY (corrigé)
-   ============================================ */
+.api-error { background: #FFFBEB; border: 1px solid #FCD34D; color: #92400E; }
+.error-message { background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C; }
+.success-message { background: #ECFDF5; border: 1px solid #A7F3D0; color: #047857; }
 
 .modal-overlay {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
     z-index: 1000;
     justify-content: center;
     align-items: center;
@@ -77,149 +228,23 @@
 .modal-box {
     background: white;
     padding: 30px;
-    border-radius: 12px;
-    max-width: 420px;
+    border-radius: 20px;
     width: 90%;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    max-width: 450px;
 }
 
-.modal-box h2 {
-    margin-bottom: 20px;
-    color: #003366;
-    font-size: 1.2rem;
-    text-align: center;
-}
-
-.modal-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.modal-buttons button {
-    flex: 1;
-}
+.modal-buttons { display: flex; gap: 15px; margin-top: 25px; }
+.modal-buttons button { flex: 1; }
 
 .cancel-btn {
-    background: #e5e7eb;
+    background: #E5E7EB;
     border: none;
-    padding: 12px;
-    border-radius: 6px;
+    padding: 14px;
+    border-radius: var(--radius);
+    font-weight: 600;
     cursor: pointer;
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #4B5563;
-    transition: background 0.2s;
 }
 
-.cancel-btn:hover {
-    background: #d1d5db;
-}
-
-/* ============================================
-   INDICATEUR DE DIRECTION (flèche plus petite)
-   ============================================ */
-
-.direction-indicator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 10px 0;
-    color: #9CA3AF;
-}
-
-.direction-indicator svg {
-    width: 28px;
-    height: 28px;
-}
-
-/* ============================================
-   INFO ROUTE
-   ============================================ */
-
-.route-info {
-    background: #f0fdf4;
-    border: 1px solid #86efac;
-    border-radius: 8px;
-    padding: 12px 15px;
-    margin: 15px 0;
-    display: none;
-}
-
-.route-info p {
-    margin: 0;
-    font-size: 0.9rem;
-    color: #166534;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.route-info strong {
-    font-size: 1rem;
-}
-
-/* ============================================
-   MESSAGES ERREUR/SUCCÈS
-   ============================================ */
-
-.error-message {
-    color: #dc3545;
-    background: #fff5f5;
-    border: 1px solid #fed7d7;
-    padding: 10px 12px;
-    border-radius: 6px;
-    margin: 10px 0;
-    display: none;
-    font-size: 0.85rem;
-}
-
-.success-message {
-    color: #28a745;
-    background: #f0fff4;
-    border: 1px solid #9ae6b4;
-    padding: 10px 12px;
-    border-radius: 6px;
-    margin: 10px 0;
-    display: none;
-    font-size: 0.85rem;
-}
-
-/* ============================================
-   LIEN AJOUTER VÉHICULE
-   ============================================ */
-
-.no-vehicle-msg {
-    display: none;
-    margin-top: 15px;
-    text-align: center;
-    color: #6B7280;
-    font-size: 0.85rem;
-}
-
-.no-vehicle-msg a {
-    color: #0072CE;
-    text-decoration: underline;
-    font-weight: 500;
-}
-
-.no-vehicle-msg a:hover {
-    color: #003366;
-}
-
-/* ============================================
-   API ERROR
-   ============================================ */
-
-.api-error {
-    background: #fff3cd;
-    border: 1px solid #ffc107;
-    border-radius: 8px;
-    padding: 12px 15px;
-    margin-bottom: 20px;
-    color: #856404;
-    font-size: 0.85rem;
-    display: none;
+@media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
 }
