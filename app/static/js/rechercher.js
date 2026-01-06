@@ -1,24 +1,27 @@
 // ============================================
 // PAGE RECHERCHER UN TRAJET
-// Utilise la nouvelle API PlaceAutocompleteElement (Mars 2025+)
 // ============================================
 
 let selectedSearchPlace = null;
 let currentSearchDirection = false; // false = vers l'IUT, true = depuis l'IUT
 let googleMapsLoaded = false;
-let placeAutocomplete = null;
+let PlaceAutocompleteElement = null;
 
-// ============================================
-// INITIALISATION AU CHARGEMENT DE LA PAGE
-// ============================================
+// Coordonnées par défaut (non utilisées pour le calcul ici mais utiles en ref)
+const IUT_COORDS = { lat: 49.8847, lng: 2.2637 };
+const IUT_ADDRESS = "IUT Amiens - Avenue des Facultés, 80000 Amiens";
+
 
 document.addEventListener('DOMContentLoaded', function() {
     initDateTimeDefaults();
+    
+    // Initialiser le formulaire
     initSearchForm();
+    
+    // Pas de loadUserInfo() ici car la page est publique et n'a pas de champ #driverName
 });
 
 function initDateTimeDefaults() {
-    // Définir la date minimum (aujourd'hui)
     const dateInput = document.getElementById('searchDate');
     if (dateInput) {
         const today = new Date().toISOString().split('T')[0];
@@ -26,83 +29,76 @@ function initDateTimeDefaults() {
         dateInput.value = today;
     }
     
-    // Définir l'heure par défaut (heure actuelle arrondie)
     const timeInput = document.getElementById('searchTime');
     if (timeInput) {
         const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = now.getMinutes() < 30 ? '00' : '30';
-        timeInput.value = `${hours}:${minutes}`;
+        const h = now.getHours() + 1;
+        timeInput.value = `${h < 10 ? '0'+h : h}:00`;
     }
 }
 
 // ============================================
-// INITIALISATION GOOGLE PLACES AUTOCOMPLETE (NOUVELLE API)
+// GOOGLE MAPS INIT
 // ============================================
 
-function initSearchAutocomplete() {
-    googleMapsLoaded = true;
-    
-    const container = document.getElementById('autocompleteContainer');
-    if (!container) return;
-    
+async function initSearchAutocomplete() {
+    console.log("Rechercher: Maps API Callback fired.");
     try {
-        // Créer le nouvel élément PlaceAutocompleteElement
-        placeAutocomplete = new google.maps.places.PlaceAutocompleteElement({
-            componentRestrictions: { country: 'fr' },
-        });
+        const placesLib = await google.maps.importLibrary("places");
+        PlaceAutocompleteElement = placesLib.PlaceAutocompleteElement;
         
-        // Vider le container et ajouter l'élément
-        container.innerHTML = '';
-        container.appendChild(placeAutocomplete);
+        googleMapsLoaded = true;
+        const errDiv = document.getElementById('apiError');
+        if(errDiv) errDiv.style.display = 'none';
         
-        // Écouter la sélection d'une adresse
-        placeAutocomplete.addEventListener('gmp-placeselect', async (event) => {
-            const place = event.place;
-            
-            // Récupérer les détails du lieu
-            await place.fetchFields({ 
-                fields: ['displayName', 'formattedAddress', 'location'] 
-            });
-            
-            onSearchPlaceSelected(place);
-        });
+        createSearchAutocompleteElement();
         
-        console.log('PlaceAutocompleteElement initialisé avec succès');
-        
-    } catch (error) {
-        console.error('Erreur lors de l\'initialisation de PlaceAutocompleteElement:', error);
-        googleMapsLoaded = false;
-        showApiError();
+    } catch (e) {
+        console.error("Erreur import Maps:", e);
+        const errDiv = document.getElementById('apiError');
+        if(errDiv) {
+            errDiv.style.display = 'block';
+            errDiv.textContent = "Erreur chargement carte.";
+        }
     }
 }
 
-function onSearchPlaceSelected(place) {
-    if (!place || !place.location) {
-        console.error("Aucune géométrie pour cette adresse");
-        selectedSearchPlace = null;
-        return;
-    }
+function createSearchAutocompleteElement() {
+    const container = document.getElementById('autocompleteContainer');
     
-    selectedSearchPlace = {
-        address: place.formattedAddress || place.displayName,
-        lat: place.location.lat(),
-        lng: place.location.lng()
-    };
+    if (!container || !PlaceAutocompleteElement) return;
     
-    // Mettre à jour les champs cachés
-    document.getElementById('searchLat').value = selectedSearchPlace.lat;
-    document.getElementById('searchLng').value = selectedSearchPlace.lng;
-    document.getElementById('searchAddressFormatted').value = selectedSearchPlace.address;
+    container.innerHTML = '';
     
-    console.log('Adresse sélectionnée:', selectedSearchPlace);
-}
-
-function showApiError() {
-    const errorDiv = document.getElementById('apiError');
-    if (errorDiv) {
-        errorDiv.style.display = 'block';
-    }
+    const placeAutocomplete = new PlaceAutocompleteElement({
+        componentRestrictions: { country: 'fr' },
+    });
+    
+    container.appendChild(placeAutocomplete);
+    
+    placeAutocomplete.addEventListener('gmp-select', async ({ placePrediction }) => {
+        // 1. Convertir la prédiction en objet Place
+        const place = placePrediction.toPlace();
+        
+        // 2. Fetcher les champs nécessaires
+        await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'location'] });
+        
+        // 3. Stocker et afficher
+        if (place.location) {
+            selectedSearchPlace = {
+                address: place.formattedAddress || place.displayName,
+                lat: place.location.lat(),
+                lng: place.location.lng()
+            };
+            
+            // Remplir champs cachés
+            document.getElementById('searchLat').value = selectedSearchPlace.lat;
+            document.getElementById('searchLng').value = selectedSearchPlace.lng;
+            document.getElementById('searchAddressFormatted').value = selectedSearchPlace.address;
+            
+            console.log("✅ Lieu recherche sélectionné:", selectedSearchPlace);
+        }
+    });
 }
 
 // ============================================
@@ -111,18 +107,20 @@ function showApiError() {
 
 function setSearchDirection(fromIut) {
     currentSearchDirection = fromIut;
-    document.getElementById('searchFromIut').value = fromIut;
+    const inputFromIut = document.getElementById('searchFromIut');
+    if (inputFromIut) inputFromIut.value = fromIut;
     
-    // Mettre à jour les boutons
-    document.getElementById('toIutBtn').classList.toggle('active', !fromIut);
-    document.getElementById('fromIutBtn').classList.toggle('active', fromIut);
+    // UI Boutons
+    const btnTo = document.getElementById('toIutBtn');
+    const btnFrom = document.getElementById('fromIutBtn');
     
-    // Mettre à jour le label
-    const addressLabel = document.getElementById('addressLabel');
-    if (fromIut) {
-        addressLabel.textContent = "Mon adresse d'arrivée";
-    } else {
-        addressLabel.textContent = "Mon adresse de départ";
+    if (btnTo) btnTo.classList.toggle('active', !fromIut);
+    if (btnFrom) btnFrom.classList.toggle('active', fromIut);
+    
+    // Label
+    const lbl = document.getElementById('addressLabel');
+    if (lbl) {
+        lbl.textContent = fromIut ? "Mon adresse d'arrivée" : "Mon adresse de départ";
     }
 }
 
@@ -131,44 +129,37 @@ function setSearchDirection(fromIut) {
 // ============================================
 
 function initSearchForm() {
-    const searchForm = document.getElementById('searchForm');
+    const form = document.getElementById('searchForm');
+    if (!form) return; // Sécurité si le formulaire n'existe pas
     
-    if (searchForm) {
-        searchForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const lat = document.getElementById('searchLat').value;
-            const lng = document.getElementById('searchLng').value;
-            const searchDate = document.getElementById('searchDate').value;
-            const searchTime = document.getElementById('searchTime').value;
-            const fromIut = document.getElementById('searchFromIut').value === 'true';
-            
-            // Validation
-            if (!googleMapsLoaded) {
-                alert('Google Maps n\'est pas chargé. Vérifiez votre clé API dans le fichier .env');
-                return;
-            }
-            
-            if (!lat || !lng) {
-                alert('Veuillez sélectionner une adresse dans la liste de suggestions.\n\nTapez votre adresse et cliquez sur une suggestion dans la liste déroulante.');
-                return;
-            }
-            
-            if (!searchDate || !searchTime) {
-                alert('Veuillez sélectionner une date et une heure');
-                return;
-            }
-            
-            // Afficher le loader
-            showLoading();
-            
-            // Afficher l'info de recherche
-            updateSearchInfo(searchTime);
-            
-            // Lancer la recherche
-            await searchRides(lat, lng, fromIut, searchDate, searchTime);
-        });
-    }
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const lat = document.getElementById('searchLat').value;
+        const lng = document.getElementById('searchLng').value;
+        const searchDate = document.getElementById('searchDate').value;
+        const searchTime = document.getElementById('searchTime').value;
+        // Conversion string "true"/"false" en boolean
+        const fromIut = document.getElementById('searchFromIut').value === 'true';
+        
+        if (!lat || !lng) {
+            alert("Veuillez sélectionner une adresse valide dans la liste déroulante.");
+            return;
+        }
+        
+        // Cacher le feedback d'adresse une fois la recherche lancée
+        const feedback = document.getElementById('searchAddressFeedback');
+        if (feedback) {
+            feedback.style.display = 'none';
+        }
+        
+        // Afficher l'info de recherche
+        updateSearchInfoUI(searchTime);
+        
+        // Lancer recherche
+        showLoading();
+        await searchRides(lat, lng, fromIut, searchDate, searchTime);
+    });
 }
 
 async function searchRides(lat, lng, fromIut, date, time) {
@@ -183,233 +174,251 @@ async function searchRides(lat, lng, fromIut, date, time) {
         
         const response = await fetch(`/rides/search?${params}`);
         
-        if (!response.ok) {
-            throw new Error('Erreur lors de la recherche');
-        }
+        if (!response.ok) throw new Error('Erreur réseau');
         
         const rides = await response.json();
         displayResults(rides);
         
     } catch (error) {
         console.error('Erreur:', error);
-        showError('Une erreur est survenue lors de la recherche. Veuillez réessayer.');
+        showError('Impossible de récupérer les trajets. Veuillez réessayer.');
     }
 }
 
 // ============================================
-// AFFICHAGE DES RÉSULTATS
+// AFFICHAGE RÉSULTATS
 // ============================================
 
 function showLoading() {
-    const resultsArea = document.getElementById('resultsArea');
-    resultsArea.innerHTML = `
-        <div class="loading">
-            <div class="loading-spinner"></div>
-            <p>Recherche des trajets en cours...</p>
-        </div>
-    `;
-}
-
-function showError(message) {
-    const resultsArea = document.getElementById('resultsArea');
-    resultsArea.innerHTML = `
+    const area = document.getElementById('resultsArea');
+    if (!area) return;
+    area.innerHTML = `
         <div class="no-results">
-            <h3>❌ Erreur</h3>
-            <p>${message}</p>
+            <div class="loading-spinner" style="margin: 0 auto 20px;"></div>
+            <p>Recherche des meilleurs covoiturages...</p>
         </div>
     `;
 }
 
-function updateSearchInfo(time) {
-    const searchInfo = document.getElementById('searchInfo');
-    const timeRange = document.getElementById('timeRange');
-    
-    // Calculer la plage horaire (±30 min)
-    const [hours, minutes] = time.split(':').map(Number);
-    const date = new Date();
-    date.setHours(hours, minutes, 0, 0);
-    
-    const minTime = new Date(date.getTime() - 30 * 60 * 1000);
-    const maxTime = new Date(date.getTime() + 30 * 60 * 1000);
-    
-    const formatTime = (d) => `${String(d.getHours()).padStart(2, '0')}h${String(d.getMinutes()).padStart(2, '0')}`;
-    
-    timeRange.textContent = `${formatTime(minTime)} et ${formatTime(maxTime)}`;
-    searchInfo.classList.add('visible');
+function showError(msg) {
+    const area = document.getElementById('resultsArea');
+    if (!area) return;
+    area.innerHTML = `
+        <div class="no-results">
+            <h3 style="color: #EF4444;">Oups !</h3>
+            <p>${msg}</p>
+        </div>
+    `;
+}
+
+function updateSearchInfoUI(time) {
+    const info = document.getElementById('searchInfo');
+    const range = document.getElementById('timeRange');
+    if(info && range) {
+        range.textContent = `${time} (±30 min)`;
+        info.style.display = 'block';
+    }
 }
 
 function displayResults(rides) {
-    const resultsArea = document.getElementById('resultsArea');
+    const area = document.getElementById('resultsArea');
+    if (!area) return;
     
     if (rides.length === 0) {
-        resultsArea.innerHTML = `
+        area.innerHTML = `
             <div class="no-results">
                 <h3>😕 Aucun trajet trouvé</h3>
-                <p>Aucun trajet ne correspond à vos critères dans un rayon de 5 km.</p>
-                <p style="margin-top: 15px;">
-                    <a href="/proposer" style="color: #0072CE; text-decoration: underline;">Proposer un trajet ?</a>
-                </p>
+                <p>Aucun conducteur ne passe près de chez vous à cette heure-ci.</p>
+                <p style="margin-top:15px; font-size:0.9rem;">Essayez de modifier légèrement l'heure ou la date.</p>
             </div>
         `;
         return;
     }
     
     let html = `
-        <p class="results-count"><strong>${rides.length}</strong> trajet(s) trouvé(s) près de votre adresse</p>
+        <div style="margin-bottom: 20px; color: var(--text-gray);">
+            <strong>${rides.length}</strong> trajet(s) trouvé(s)
+        </div>
         <div class="results-grid">
     `;
     
-    rides.forEach(ride => {
-        html += createRideCard(ride);
-    });
+    rides.forEach(ride => html += createRideCardHTML(ride));
     
     html += '</div>';
-    resultsArea.innerHTML = html;
+    area.innerHTML = html;
     
-    // Ajouter les event listeners pour les boutons de réservation
-    addReservationListeners();
+    // Attacher listeners boutons
+    document.querySelectorAll('.btn-reserve').forEach(btn => {
+        btn.addEventListener('click', function() {
+            bookRide(this.dataset.rideId, this);
+        });
+    });
 }
 
-function createRideCard(ride) {
-    const departure = new Date(ride.departure);
-    
-    const dateStr = departure.toLocaleDateString('fr-FR', { 
-        weekday: 'short', 
-        day: 'numeric', 
-        month: 'short' 
-    });
-    
-    const timeStr = departure.toLocaleTimeString('fr-FR', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-    });
-    
+function createRideCardHTML(ride) {
+    const dep = new Date(ride.departure);
+    const dateStr = dep.toLocaleDateString('fr-FR', { weekday:'short', day:'numeric', month:'short' });
+    const timeStr = dep.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
     const price = parseFloat(ride.price).toFixed(2);
+    const distText = ride.distance_km ? `${ride.distance_km} km` : '--';
+    const durText = ride.duration_min ? `${ride.duration_min} min` : '--';
     
-    // Distance et durée
-    const distanceText = ride.distance_km ? `${ride.distance_km} km` : '--';
-    const durationText = ride.duration_min ? `${ride.duration_min} min` : '--';
-    
-    // Distance depuis le point de recherche
-    const proximityText = ride.distance_from_search !== null && ride.distance_from_search !== undefined
-        ? `À ${ride.distance_from_search} km de vous` 
+    const prox = ride.distance_from_search 
+        ? `<div class="distance-badge">📍 À ${ride.distance_from_search} km de vous</div>` 
         : '';
-    
+
     return `
         <article class="ride-card">
             <div class="ride-card-header">
                 <div class="price">${price} €</div>
                 <div class="date-time">
                     <div class="date">${dateStr}</div>
-                    <div class="time">Départ à ${timeStr}</div>
+                    <div class="time">${timeStr}</div>
                 </div>
             </div>
-            
             <div class="ride-card-body">
                 <div class="ride-route">
                     <div class="point start">
-                        <div class="dot-container">
-                            <div class="dot"></div>
-                            <div class="line"></div>
-                        </div>
-                        <div>
-                            <div class="label">Départ</div>
-                            <div class="address">${ride.address_from}</div>
-                        </div>
+                        <div class="dot-container"><div class="dot"></div><div class="line"></div></div>
+                        <div><div class="label">Départ</div><div class="address">${ride.address_from}</div></div>
                     </div>
                     <div class="point end">
-                        <div class="dot-container">
-                            <div class="dot"></div>
-                        </div>
-                        <div>
-                            <div class="label">Arrivée</div>
-                            <div class="address">${ride.address_to}</div>
-                        </div>
+                        <div class="dot-container"><div class="dot"></div></div>
+                        <div><div class="label">Arrivée</div><div class="address">${ride.address_to}</div></div>
                     </div>
                 </div>
                 
                 <div class="ride-info">
-                    <div class="info-item">
-                        <span>🚗</span>
-                        <span><strong>${distanceText}</strong></span>
-                    </div>
-                    <div class="info-item">
-                        <span>⏱️</span>
-                        <span><strong>${durationText}</strong></span>
-                    </div>
-                    <div class="info-item">
-                        <span>💺</span>
-                        <span><strong>${ride.max_seats}</strong> place(s)</span>
-                    </div>
+                    <div class="info-item"><span>🚗</span><strong>${distText}</strong></div>
+                    <div class="info-item"><span>⏱️</span><strong>${durText}</strong></div>
+                    <div class="info-item"><span>💺</span><strong>${ride.max_seats}</strong> pl.</div>
                 </div>
-                
-                ${proximityText ? `<div style="margin-top: 12px;"><span class="distance-badge">📍 ${proximityText}</span></div>` : ''}
+                ${prox}
             </div>
-            
             <div class="ride-card-footer">
-                <button class="btn-reserve" data-ride-id="${ride.ride_id}">
-                    Réserver ce trajet
-                </button>
+                <button class="btn-reserve" data-ride-id="${ride.ride_id}">Réserver</button>
             </div>
         </article>
     `;
 }
 
-// ============================================
-// RÉSERVATION
-// ============================================
-
-function addReservationListeners() {
-    document.querySelectorAll('.btn-reserve').forEach(btn => {
-        btn.addEventListener('click', async function() {
-            const rideId = this.dataset.rideId;
-            await bookRide(rideId, this);
-        });
-    });
-}
-
-async function bookRide(rideId, button) {
-    // Vérifier si connecté
-    if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
-        alert('Vous devez être connecté pour réserver un trajet.');
+async function bookRide(rideId, btn) {
+    // Vérification globale isLoggedIn
+    if (typeof window.isLoggedIn === 'function' && !window.isLoggedIn()) {
+        window.location.href = '/connexion';
+        return;
+    } else if (!localStorage.getItem('access_token')) {
+        // Fallback manuel si isLoggedIn n'est pas chargé
         window.location.href = '/connexion';
         return;
     }
     
-    // Désactiver le bouton pendant la requête
-    const originalText = button.textContent;
-    button.textContent = 'Réservation...';
-    button.disabled = true;
+    // Afficher la modal de confirmation
+    const modal = document.getElementById('confirmModal');
+    const btnYes = document.getElementById('confirmYes');
+    const btnNo = document.getElementById('confirmNo');
+    const modalBody = modal.querySelector('.modal-box p');
+    const modalTitle = modal.querySelector('.modal-box h3');
+    const modalButtons = modal.querySelector('.modal-buttons');
     
-    try {
-        const response = await fetchWithAuth('/reservations/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                ride_id: parseInt(rideId),
-                seats_booked: 1
-            })
-        });
-        
-        if (response.ok) {
-            alert('🎉 Réservation effectuée avec succès !');
-            window.location.href = '/reservations';
-        } else {
-            const error = await response.json();
-            alert('Erreur: ' + (error.detail || 'Impossible de réserver ce trajet'));
-            button.textContent = originalText;
-            button.disabled = false;
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-        alert('Erreur de connexion au serveur');
-        button.textContent = originalText;
-        button.disabled = false;
+    if (!modal || !btnYes || !btnNo) {
+        console.error("Modal elements not found");
+        return;
     }
+    
+    // Reset modal state (au cas où elle a été utilisée pour un succès avant)
+    modalTitle.textContent = "Confirmation";
+    modalBody.textContent = "Souhaitez-vous réserver une place pour ce trajet ?";
+    modalButtons.style.display = "flex";
+    
+    // Nettoyer les anciens event listeners
+    const newBtnYes = btnYes.cloneNode(true);
+    btnYes.parentNode.replaceChild(newBtnYes, btnYes);
+    
+    const newBtnNo = btnNo.cloneNode(true);
+    btnNo.parentNode.replaceChild(newBtnNo, btnNo);
+    
+    // Ouvrir la modal
+    modal.style.display = 'flex';
+    
+    // Gestion du Non
+    newBtnNo.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+    
+    // Gestion du Oui
+    newBtnYes.addEventListener('click', async () => {
+        // État de chargement dans la modal
+        newBtnYes.textContent = "Envoi...";
+        newBtnYes.disabled = true;
+        newBtnNo.disabled = true;
+        
+        try {
+            const res = await fetchWithAuth('/reservations/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ ride_id: parseInt(rideId), seats_booked: 1 })
+            });
+            
+            if (res.ok) {
+                // Modification de la modal pour afficher le succès
+                modalTitle.textContent = "Succès !";
+                modalBody.innerHTML = `<span style="color: #059669; font-weight: bold;">✓ Demande de réservation envoyée.</span><br>En attente de la validation du conducteur.`;
+                
+                // Remplacer les boutons par un seul bouton "Compris"
+                modalButtons.innerHTML = ''; // Vider les boutons
+                const btnCompris = document.createElement('button');
+                btnCompris.textContent = "Compris";
+                btnCompris.className = "btn-confirm-yes"; // Style vert
+                btnCompris.onclick = () => {
+                    modal.style.display = 'none';
+                    window.location.href = '/reservations';
+                };
+                modalButtons.appendChild(btnCompris);
+                
+                // Fermeture automatique optionnelle (désactivée pour laisser le temps de lire)
+                // setTimeout(() => { ... }, 3000);
+            } else {
+                const err = await res.json();
+                modalTitle.textContent = "Information";
+                
+                // Si c'est une erreur "déjà réservé" (status 400 ou 409 selon l'implémentation backend)
+                // On affiche un bouton "Compris" au lieu de réessayer
+                if (res.status === 400 || res.status === 409) {
+                    modalBody.textContent = err.detail || 'Vous avez déjà une réservation pour ce trajet.';
+                    
+                    modalButtons.innerHTML = ''; // Vider les boutons Oui/Non
+                    const btnCompris = document.createElement('button');
+                    btnCompris.textContent = "Compris";
+                    btnCompris.className = "btn-confirm-no"; // Style gris ou neutre
+                    btnCompris.onclick = () => {
+                        modal.style.display = 'none';
+                    };
+                    modalButtons.appendChild(btnCompris);
+                } else {
+                    // Erreur générique, on laisse réessayer
+                    modalBody.textContent = err.detail || 'Echec réservation';
+                    newBtnYes.textContent = "Oui";
+                    newBtnYes.disabled = false;
+                    newBtnNo.disabled = false;
+                }
+            }
+        } catch (e) {
+            modalTitle.textContent = "Erreur";
+            modalBody.textContent = "Erreur de connexion au serveur.";
+            // Reset boutons
+            newBtnYes.textContent = "Oui";
+            newBtnYes.disabled = false;
+            newBtnNo.disabled = false;
+        }
+    });
+    
+    // Fermeture clic extérieur
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+    };
 }
 
-// Exposer les fonctions globalement
+// === EXPOSITION GLOBALE (CRITIQUE) ===
 window.initSearchAutocomplete = initSearchAutocomplete;
 window.setSearchDirection = setSearchDirection;

@@ -288,7 +288,7 @@ def get_remaining_seats(db: Session, ride_id: int) -> int:
     return ride.max_seats - seats_taken
 
 def create_reservation(db: Session, reservation: schemas.ReservationCreate, passenger_id: int):
-    """Crée une réservation si des places sont disponibles."""
+    """Crée une réservation en mode waiting si des places sont disponibles."""
     remaining_seats = get_remaining_seats(db, ride_id=reservation.ride_id)
     
     if remaining_seats < reservation.seats_booked:
@@ -298,7 +298,7 @@ def create_reservation(db: Session, reservation: schemas.ReservationCreate, pass
         ride_id=reservation.ride_id,
         passenger_id=passenger_id,
         seats_booked=reservation.seats_booked,
-        status='confirmed',
+        status='waiting',
         reservation_date=datetime.now()
     )
     
@@ -316,6 +316,13 @@ def get_reservations_by_passenger(db: Session, passenger_id: int):
 
 def get_reservation_by_id(db: Session, reservation_id: int):
     return db.query(models.Reservation).filter(models.Reservation.reservation_id == reservation_id).first()
+
+def get_reservation_by_passenger_and_ride(db: Session, passenger_id: int, ride_id: int):
+    """Vérifie si un passager a déjà réservé un trajet spécifique."""
+    return db.query(models.Reservation).filter(
+        models.Reservation.passenger_id == passenger_id,
+        models.Reservation.ride_id == ride_id
+    ).first()
 
 def cancel_reservation(db: Session, reservation: models.Reservation):
     """Annule une réservation."""

@@ -123,8 +123,10 @@ document.addEventListener('click', async function(e) {
 });
 
 // ============================================
-// CHARGEMENT DES RÉSERVATIONS DE L'UTILISATEUR
+// GESTION DES TRAJETS ET RÉSERVATIONS
 // ============================================
+
+// --- CHARGEMENT DES RÉSERVATIONS PASSAGER ---
 
 async function loadMyReservations(containerId) {
     const container = document.getElementById(containerId);
@@ -133,114 +135,216 @@ async function loadMyReservations(containerId) {
     try {
         const response = await fetchWithAuth('/reservations/me');
         
-        if (!response.ok) {
-            throw new Error('Erreur lors du chargement');
-        }
+        if (!response.ok) throw new Error('Erreur lors du chargement');
 
         const reservations = await response.json();
 
         if (reservations.length === 0) {
             container.innerHTML = `
-                <div class="content-card">
-                    <img src="/static/images/logo.svg" alt="Vide" class="empty-icon">
-                    <h2 class="empty-message">Aucune réservation</h2>
+                <div class="no-results-msg">
+                    <h3 style="margin-bottom:10px; color:#1F2937;">Aucune réservation</h3>
+                    <p style="color:#6B7280;">Vous n'avez pas encore réservé de trajet.</p>
+                    <a href="/rechercher" style="display:inline-block; margin-top:15px; color:#0072CE; font-weight:600; text-decoration:underline;">Rechercher un trajet</a>
                 </div>
             `;
             return;
         }
 
         container.innerHTML = reservations.map(res => createReservationCard(res)).join('');
+        
+        attachCancelListeners();
 
     } catch (error) {
         console.error('Erreur:', error);
+        container.innerHTML = '<div class="no-results-msg" style="color:#EF4444;">Impossible de charger vos réservations.</div>';
     }
 }
 
 function createReservationCard(reservation) {
-    const statusLabels = {
-        'waiting': 'En attente',
-        'confirmed': 'Confirmé',
-        'canceled': 'Annulé',
-        'finished': 'Terminé'
-    };
+    const ride = reservation.ride || {}; 
+    
+    // Dates
+    const dateObj = new Date(ride.departure || reservation.reservation_date);
+    const dateStr = dateObj.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const timeStr = dateObj.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    
+    // Arrivée estimée
+    const durationMin = ride.duration_min || 60;
+    const arrivalDate = new Date(dateObj.getTime() + durationMin * 60000);
+    const arrivalTimeStr = arrivalDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
-    const statusClasses = {
-        'waiting': 'status-pending',
-        'confirmed': 'status-confirmed',
-        'canceled': 'status-canceled',
-        'finished': 'status-finished'
+    // Statut
+    const statusConfig = {
+        'waiting': { label: 'En attente', class: 'status-waiting' },
+        'confirmed': { label: 'Confirmé', class: 'status-confirmed' },
+        'canceled': { label: 'Annulé', class: 'status-canceled' },
+        'finished': { label: 'Terminé', class: 'status-finished' }
     };
+    const statusInfo = statusConfig[reservation.status] || { label: reservation.status, class: '' };
 
-    const date = new Date(reservation.reservation_date).toLocaleDateString('fr-FR', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-    });
+    // Conducteur
+    const driverName = ride.driver ? `${ride.driver.name} ${ride.driver.surname ? ride.driver.surname[0] + '.' : ''}` : 'Conducteur';
+    const driverInitial = ride.driver && ride.driver.name ? ride.driver.name[0] : 'C';
+
+    // Prix
+    const price = ride.price !== undefined ? parseFloat(ride.price).toFixed(2) : '--';
+
+    // Bouton Annuler
+    let actionBtn = '';
+    if (reservation.status === 'waiting' || reservation.status === 'confirmed') {
+        actionBtn = `
+            <div class="card-footer">
+                <button class="btn-cancel" data-id="${reservation.reservation_id}">Annuler la réservation</button>
+            </div>
+        `;
+    }
 
     return `
-        <div class="reservation-card">
+        <article class="reservation-card">
             <div class="card-header">
-                <span class="date">${date}</span>
-                <span class="status ${statusClasses[reservation.status] || ''}">${statusLabels[reservation.status] || reservation.status}</span>
+                <span class="date">
+                    📅 ${capitalizeFirstLetter(dateStr)}
+                </span>
+                <span class="status-badge ${statusInfo.class}">${statusInfo.label}</span>
             </div>
+            
             <div class="card-body">
-                <p>Places réservées: ${reservation.seats_booked}</p>
+                <div class="timeline">
+                    <div class="timeline-item start">
+                        <div class="point-dot"></div>
+                        <div class="timeline-content">
+                            <span class="time">${timeStr}</span>
+                            <span class="place">${ride.address_from || 'Départ inconnu'}</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item end">
+                        <div class="point-dot"></div>
+                        <div class="timeline-content">
+                            <span class="time">${arrivalTimeStr}</span>
+                            <span class="place">${ride.address_to || 'IUT Amiens'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-info-side">
+                    <div class="price-tag">${price} €</div>
+                    <div class="driver-info">
+                        <div class="avatar-mini">${driverInitial}</div>
+                        <span>${driverName}</span>
+                    </div>
+                </div>
             </div>
-        </div>
+
+            ${actionBtn}
+        </article>
     `;
 }
 
-// ============================================
-// CHARGEMENT DES ANNONCES DE L'UTILISATEUR
-// ============================================
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
+function attachCancelListeners() {
+    document.querySelectorAll('.btn-cancel').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const resId = e.target.dataset.id;
+            if(!confirm("Voulez-vous vraiment annuler cette réservation ?")) return;
+
+            try {
+                const res = await fetchWithAuth(`/reservations/${resId}/cancel`, { method: 'POST' });
+                if(res.ok) {
+                    alert("Réservation annulée.");
+                    loadMyReservations('reservations-container'); 
+                } else {
+                    alert("Impossible d'annuler.");
+                }
+            } catch(err) {
+                console.error(err);
+                alert("Erreur réseau.");
+            }
+        });
+    });
+}
+
+// --- CHARGEMENT DES OFFRES (ACCUEIL) ---
+async function loadRides(containerId, limit = 4) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    try {
+        const response = await fetch(`/rides/?limit=${limit}`);
+        if (!response.ok) throw new Error('Erreur chargement');
+        const rides = await response.json();
+
+        if (rides.length === 0) {
+            container.innerHTML = '<p class="no-results-msg">Aucun trajet disponible.</p>';
+            return;
+        }
+        // Utilisation d'un format simple pour l'accueil
+        container.innerHTML = rides.map(ride => {
+             const date = new Date(ride.departure).toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
+             const time = new Date(ride.departure).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+             return `
+                <article class="trip-card">
+                    <span class="price-badge">${parseFloat(ride.price).toFixed(2)}€</span>
+                    <div class="card-body" style="padding:15px;">
+                        <div class="time" style="font-size:1.1rem; font-weight:700;">${time}</div>
+                        <div class="place" style="font-size:0.9rem;">${ride.address_from}</div>
+                        <div style="margin-top:5px; font-size:0.8rem; color:#6B7280;">Vers ${ride.address_to}</div>
+                        <div style="margin-top:10px; font-weight:600; color:#0072CE;">${date}</div>
+                    </div>
+                </article>
+             `;
+        }).join('');
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// --- CHARGEMENT MES ANNONCES (CONDUCTEUR) ---
 async function loadMyRides(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
     try {
         const response = await fetchWithAuth('/rides/user/me');
-        
-        if (!response.ok) {
-            throw new Error('Erreur lors du chargement');
-        }
-
+        if (!response.ok) throw new Error('Erreur chargement');
         const rides = await response.json();
 
         if (rides.length === 0) {
-            container.innerHTML = '<p class="no-results-msg">Vous n\'avez pas encore proposé de trajet.</p>';
+            container.innerHTML = '<p class="no-results-msg">Vous n\'avez pas proposé de trajet.</p>';
             return;
         }
 
-        container.innerHTML = rides.map(ride => createMyRideCard(ride)).join('');
+        container.innerHTML = rides.map(ride => {
+            const date = new Date(ride.departure).toLocaleDateString('fr-FR');
+            const status = ride.status === 'active' ? 'Actif' : 'Terminé';
+            return `
+                <div class="reservation-card" style="margin-bottom:20px;">
+                    <div class="card-header">
+                        <span class="date">${date}</span>
+                        <span class="status-badge status-confirmed">${status}</span>
+                    </div>
+                    <div class="card-body">
+                        <div>
+                            <strong>${ride.address_from}</strong> → ${ride.address_to}<br>
+                            <small>${ride.max_seats} places - ${parseFloat(ride.price).toFixed(2)}€</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
 
     } catch (error) {
-        console.error('Erreur:', error);
+        console.error(error);
     }
 }
 
-function createMyRideCard(ride) {
-    const departure = new Date(ride.departure);
-    const date = departure.toLocaleDateString('fr-FR');
-    const time = departure.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-
-    return `
-        <div class="annonce-card">
-            <div class="annonce-header">
-                <div>
-                    <h3>${ride.address_to}</h3>
-                    <p>Départ : ${ride.address_from} à ${time}</p>
-                    <span>Le ${date}</span>
-                </div>
-                <span class="badge">${ride.max_seats} place(s)</span>
-            </div>
-            <div class="annonce-info">
-                <strong>${parseFloat(ride.price).toFixed(2)}€</strong> / Pers.
-            </div>
-        </div>
-    `;
-}
+// Initialisation globale si nécessaire
+window.loadRides = loadRides;
+window.loadMyReservations = loadMyReservations;
+window.loadMyRides = loadMyRides;
 
 // ============================================
 // INITIALISATION

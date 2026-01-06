@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoCampus - Rechercher</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/rechercher.css">
 </head>
 <body>
@@ -27,7 +28,8 @@
 
     <!-- Hero Search -->
     <header class="hero-search">
-        <h1>Rechercher un trajet</h1>
+        <h1>Trouvez votre covoiturage</h1>
+        <p style="opacity:0.9;">Recherchez un trajet qui passe près de chez vous</p>
     </header>
 
     <!-- Main Content -->
@@ -36,30 +38,28 @@
         <!-- Formulaire de recherche -->
         <div class="search-card">
             
-            <!-- Message d'erreur API -->
-            <div id="apiError" class="api-error" style="display: none;">
-                ⚠️ Google Maps n'est pas configuré. Vérifiez votre clé API.
-            </div>
+            <div id="apiError" class="api-error" style="display: none;"></div>
             
             <!-- Toggle direction -->
             <div class="direction-toggle">
                 <button type="button" id="toIutBtn" class="active" onclick="setSearchDirection(false)">
-                    🏠 → 🎓 Je vais à l'IUT
+                    Aller à l'IUT
                 </button>
                 <button type="button" id="fromIutBtn" onclick="setSearchDirection(true)">
-                    🎓 → 🏠 Je pars de l'IUT
+                    Partir de l'IUT
                 </button>
             </div>
             
             <form id="searchForm">
                 <div class="search-form-grid">
                     
-                    <!-- Adresse avec nouveau composant Google -->
+                    <!-- Adresse -->
                     <div class="form-group">
                         <label class="form-label" id="addressLabel">Mon adresse de départ</label>
                         <div class="autocomplete-container" id="autocompleteContainer">
-                            <!-- Le PlaceAutocompleteElement sera inséré ici par JS -->
+                            <!-- Google Place Element injecté ici -->
                         </div>
+                        <div id="searchAddressFeedback" class="selected-address-confirm"></div>
                     </div>
 
                     <!-- Date -->
@@ -84,7 +84,7 @@
                     </button>
                 </div>
                 
-                <!-- Champs cachés pour les coordonnées -->
+                <!-- Champs cachés -->
                 <input type="hidden" id="searchLat">
                 <input type="hidden" id="searchLng">
                 <input type="hidden" id="searchAddressFormatted">
@@ -92,18 +92,30 @@
             </form>
             
             <div id="searchInfo" class="search-info">
-                <p>📍 Recherche des trajets à moins de <strong>5 km</strong> de votre adresse, départ entre <strong id="timeRange">--</strong></p>
+                Recherche autour de <strong id="timeRange">--</strong> (Rayon 5km)
             </div>
         </div>
 
         <!-- Zone de résultats -->
         <div id="resultsArea">
             <div class="no-results">
-                <h3>🚗 Trouvez votre covoiturage</h3>
-                <p>Entrez votre adresse et sélectionnez une date pour rechercher des trajets près de chez vous</p>
+                <h3>🚗 Prêt à partir ?</h3>
+                <p>Remplissez le formulaire ci-dessus pour voir les trajets disponibles.</p>
             </div>
         </div>
 
+    </div>
+
+    <!-- Modal de Confirmation -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Confirmation</h3>
+            <p>Souhaitez-vous réserver une place pour ce trajet ?</p>
+            <div class="modal-buttons">
+                <button id="confirmNo" class="btn-confirm-no">Non</button>
+                <button id="confirmYes" class="btn-confirm-yes">Oui</button>
+            </div>
+        </div>
     </div>
 
     <!-- Footer -->
@@ -134,37 +146,28 @@
         </div>
     </footer>
     
-    <!-- Google Maps API - Chargement dynamique -->
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/rechercher.js"></script>
+    
+    <!-- Script Maps (chargé à la fin) -->
     <script>
         async function loadGoogleMapsAPI() {
             try {
                 const response = await fetch('/api/config/maps');
                 const config = await response.json();
-                
-                if (config.api_key && config.api_key.length > 0) {
+                if (config.api_key) {
                     const script = document.createElement('script');
-                    script.src = `https://maps.googleapis.com/maps/api/js?key=${config.api_key}&libraries=places&callback=initSearchAutocomplete&loading=async`;
-                    script.async = true;
-                    script.defer = true;
-                    script.onerror = function() {
-                        console.error('Erreur de chargement de Google Maps API');
-                        document.getElementById('apiError').style.display = 'block';
-                    };
+                    // v=weekly est important pour les Web Components
+                    script.src = `https://maps.googleapis.com/maps/api/js?key=${config.api_key}&loading=async&v=weekly&callback=initSearchAutocomplete`;
+                    script.async = true; script.defer = true;
                     document.head.appendChild(script);
                 } else {
-                    console.warn('Clé API Google Maps non configurée');
+                    document.getElementById('apiError').textContent = "Clé API manquante";
                     document.getElementById('apiError').style.display = 'block';
                 }
-            } catch (error) {
-                console.error('Erreur lors du chargement de la config Google Maps:', error);
-                document.getElementById('apiError').style.display = 'block';
-            }
+            } catch (error) { console.error('Maps Config Error:', error); }
         }
-        
         loadGoogleMapsAPI();
     </script>
-    
-    <script src="/static/js/auth.js"></script>
-    <script src="/static/js/rechercher.js"></script>
 </body>
 </html>
