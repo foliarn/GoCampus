@@ -42,6 +42,16 @@ def reservations(request: Request):
 def annonces(request: Request):
     return templates.TemplateResponse("annonces.html", {"request": request})
 
+# Dashboard Admin
+@router.get("/admin/dashboard")
+def admin_dashboard(request: Request):
+    return templates.TemplateResponse("admin_dashboard.html", {"request": request})
+
+# Mon profil
+@router.get("/profil")
+def profil(request: Request):
+    return templates.TemplateResponse("profil.html", {"request": request})
+
 # Test Google Maps API
 @router.get("/test-maps")
 def test_maps(request: Request):

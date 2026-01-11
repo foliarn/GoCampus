@@ -34,6 +34,30 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
+def update_user(db: Session, user_id: int, user_update: schemas.UserCreate):
+    """Met à jour les informations d'un utilisateur"""
+    db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    
+    if not db_user:
+        return None
+    
+    # Mettre à jour les champs
+    db_user.name = user_update.name
+    db_user.surname = user_update.surname
+    db_user.email = user_update.email
+    db_user.phone_number = user_update.phone_number
+    db_user.address = user_update.address
+    db_user.role = user_update.role
+    
+    # Si un nouveau mot de passe est fourni, le hasher
+    if hasattr(user_update, 'password') and user_update.password:
+        from app.utils import get_password_hash
+        db_user.password = get_password_hash(user_update.password)
+    
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
 # === VEHICLE MANAGEMENT ===
 
 def get_user_vehicles(db: Session, user_id: int):
@@ -342,4 +366,53 @@ def update_reservation_status(db: Session, reservation: models.Reservation, new_
     reservation.status = new_status
     db.commit()
     db.refresh(reservation)
+    return reservation
+
+# ============================================
+#               ADMIN SECTION
+# ============================================
+
+def get_all_users(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.User).order_by(models.User.user_id.desc()).offset(skip).limit(limit).all()
+
+def delete_user_force(db: Session, user_id: int):
+    user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    if user:
+        # Suppression explicite des véhicules pour éviter les erreurs si CASCADE manque
+        db.query(models.Vehicle).filter(models.Vehicle.driver_id == user_id).delete()
+        db.delete(user)
+        db.commit()
+    return user
+
+def get_all_rides_admin(db: Session, skip: int = 0, limit: int = 100):
+    """Récupère TOUS les trajets (même terminés ou annulés) avec le conducteur"""
+    return db.query(models.Ride)\
+        .options(joinedload(models.Ride.driver))\
+        .order_by(models.Ride.departure.desc())\
+        .offset(skip).limit(limit).all()
+
+def delete_ride_force(db: Session, ride_id: int):
+    """Suppression physique d'un trajet"""
+    ride = db.query(models.Ride).filter(models.Ride.ride_id == ride_id).first()
+    if ride:
+        db.delete(ride)
+        db.commit()
+    return ride
+
+def get_all_reservations_admin(db: Session, skip: int = 0, limit: int = 100):
+    """Récupère TOUTES les réservations"""
+    return db.query(models.Reservation)\
+        .options(
+            joinedload(models.Reservation.passenger),
+            joinedload(models.Reservation.ride).joinedload(models.Ride.driver)
+        )\
+        .order_by(models.Reservation.reservation_date.desc())\
+        .offset(skip).limit(limit).all()
+
+def delete_reservation_force(db: Session, reservation_id: int):
+    """Suppression physique d'une réservation"""
+    reservation = db.query(models.Reservation).filter(models.Reservation.reservation_id == reservation_id).first()
+    if reservation:
+        db.delete(reservation)
+        db.commit()
     return reservation

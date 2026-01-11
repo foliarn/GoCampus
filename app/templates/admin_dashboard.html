@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoCampus - Administration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .admin-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .admin-header h1 { color: #b91c1c; } /* Rouge pour différencier */
+        
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #E5E7EB; }
+        .tab-btn { padding: 10px 20px; background: none; border: none; font-size: 1rem; font-weight: 600; color: #6B7280; cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: #b91c1c; border-bottom-color: #b91c1c; }
+        
+        /* Content */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Table */
+        .data-table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; }
+        .data-table th, .data-table td { padding: 15px; text-align: left; border-bottom: 1px solid #E5E7EB; }
+        .data-table th { background: #F9FAFB; font-weight: 700; color: #374151; }
+        .data-table tr:hover { background: #F3F4F6; }
+        
+        .btn-action { padding: 6px 12px; border-radius: 4px; border: none; color: white; cursor: pointer; font-size: 0.85rem; }
+        .btn-delete { background: #EF4444; }
+        .btn-delete:hover { background: #DC2626; }
+
+        .badge-role { background: #DBEAFE; color: #1E40AF; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;}
+        .badge-role.admin { background: #FEE2E2; color: #991B1B; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <img src="/static/images/logo.svg" alt="GoCampus">
+            GoCampus <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;">| ADMIN</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="/">Retour au site</a></li>
+            <li><a href="#" onclick="handleLogout(event)">Déconnexion</a></li>
+        </ul>
+    </nav>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Dashboard Administrateur</h1>
+            <p id="adminName">Chargement...</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('users')">Utilisateurs</button>
+            <button class="tab-btn" onclick="switchTab('rides')">Trajets</button>
+            <button class="tab-btn" onclick="switchTab('reservations')">Réservations</button>
+        </div>
+
+        <!-- USERS TAB -->
+        <div id="users" class="tab-content active">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- RIDES TAB -->
+        <div id="rides" class="tab-content">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Conducteur</th>
+                        <th>De > Vers</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ridesTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- RESERVATIONS TAB -->
+        <div id="reservations" class="tab-content">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Passager</th>
+                        <th>Trajet ID</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="resTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/admin.js"></script>
+</body>
+</html>
