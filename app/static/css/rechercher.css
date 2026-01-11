@@ -317,7 +317,8 @@ gmp-place-autocomplete {
 /* Infos (Grid) */
 .ride-info {
     display: flex;
-    justify-content: space-between;
+    justify-content: center; /* Centré */
+    gap: 30px; /* Espace entre les éléments */
     padding-top: 15px;
     border-top: 1px solid var(--border-color);
     margin-top: 5px;

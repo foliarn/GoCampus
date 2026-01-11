@@ -267,6 +267,23 @@ function createRideCardHTML(ride) {
         ? `<div class="distance-badge">📍 À ${ride.distance_from_search} km de vous</div>` 
         : '';
 
+    // --- LOGIQUE PLACES DYNAMIQUES ---
+    const reservations = ride.reservations || [];
+    const seatsTaken = reservations
+        .filter(r => ['waiting', 'confirmed'].includes(r.status))
+        .reduce((sum, r) => sum + r.seats_booked, 0);
+    
+    const remainingSeats = Math.max(0, ride.max_seats - seatsTaken);
+    
+    // Style et texte pour les places
+    const seatColor = remainingSeats === 0 ? '#EF4444' : '#1F2937'; // Rouge si complet
+    const seatLabel = remainingSeats > 1 ? 'places' : 'place';
+    
+    // Désactiver le bouton si complet
+    const isFull = remainingSeats === 0;
+    const btnDisabled = isFull ? 'disabled style="background-color: #9CA3AF; cursor: not-allowed;"' : '';
+    const btnText = isFull ? 'Complet' : 'Réserver';
+
     return `
         <article class="ride-card">
             <div class="ride-card-header">
@@ -289,14 +306,23 @@ function createRideCardHTML(ride) {
                 </div>
                 
                 <div class="ride-info">
-                    <div class="info-item"><span>🚗</span><strong>${distText}</strong></div>
-                    <div class="info-item"><span>⏱️</span><strong>${durText}</strong></div>
-                    <div class="info-item"><span>💺</span><strong>${ride.max_seats}</strong> pl.</div>
+                    <div class="info-item">
+                        <span>🚗</span>
+                        <strong>${distText}</strong>
+                    </div>
+                    <div class="info-item">
+                        <span>⏱️</span>
+                        <strong>${durText}</strong>
+                    </div>
+                    <div class="info-item" style="color: ${seatColor};">
+                        <span>💺</span>
+                        <strong>${remainingSeats} ${seatLabel}</strong>
+                    </div>
                 </div>
                 ${prox}
             </div>
             <div class="ride-card-footer">
-                <button class="btn-reserve" data-ride-id="${ride.ride_id}">Réserver</button>
+                <button class="btn-reserve" data-ride-id="${ride.ride_id}" ${btnDisabled}>${btnText}</button>
             </div>
         </article>
     `;

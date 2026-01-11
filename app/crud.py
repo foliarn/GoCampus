@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, and_, or_
 from app import models, schemas
 from app.services import calculate_distance_km
@@ -258,8 +258,15 @@ def get_ride_by_id(db: Session, ride_id: int):
     return db.query(models.Ride).filter(models.Ride.ride_id == ride_id).first()
 
 def get_user_rides(db: Session, user_id: int):
-    """Récupère les trajets proposés par un utilisateur."""
+    """
+    Récupère les trajets proposés par un utilisateur,
+    avec chargement optimisé des réservations et des passagers pour l'affichage conducteur.
+    """
     return db.query(models.Ride)\
+        .options(
+            joinedload(models.Ride.reservations)
+            .joinedload(models.Reservation.passenger)
+        )\
         .filter(models.Ride.driver_id == user_id)\
         .order_by(models.Ride.departure.desc())\
         .all()
@@ -327,6 +334,12 @@ def get_reservation_by_passenger_and_ride(db: Session, passenger_id: int, ride_i
 def cancel_reservation(db: Session, reservation: models.Reservation):
     """Annule une réservation."""
     reservation.status = 'canceled'
+    db.commit()
+    db.refresh(reservation)
+    return reservation
+
+def update_reservation_status(db: Session, reservation: models.Reservation, new_status: str):
+    reservation.status = new_status
     db.commit()
     db.refresh(reservation)
     return reservation

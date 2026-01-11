@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime, date, time
-from typing import Optional
+from typing import Optional, List
 from decimal import Decimal
 
 # --- USER ---
@@ -38,6 +38,26 @@ class VehicleOut(VehicleBase):
     class Config:
         from_attributes = True
 
+# --- HELPER FOR RESERVATIONS IN RIDE ---
+class UserBasic(BaseModel):
+    """Minimal user info for display in reservation lists"""
+    user_id: int
+    name: str
+    surname: str
+    
+    class Config:
+        from_attributes = True
+
+class ReservationInRide(BaseModel):
+    """Schema for a reservation nested inside a ride (for driver view)"""
+    reservation_id: int
+    seats_booked: int
+    status: str
+    passenger: UserBasic
+
+    class Config:
+        from_attributes = True
+
 # --- RIDE ---
 class RideBase(BaseModel):
     address_from: str
@@ -48,17 +68,10 @@ class RideBase(BaseModel):
 
 class RideCreate(BaseModel):
     """Schema pour la création d'un trajet"""
-    # L'adresse libre (l'autre sera l'IUT)
     address: str
-    
-    # Coordonnées de l'adresse libre (fournies par le frontend via Google Places)
     lat: float
     lng: float
-    
-    # Direction: True = départ depuis l'IUT, False = arrivée à l'IUT
     from_iut: bool = False
-    
-    # Infos du trajet
     departure: datetime
     max_seats: int = Field(gt=0, le=8, default=3)
     price: Decimal = Field(ge=0)
@@ -93,34 +106,29 @@ class RideOut(BaseModel):
     status: str
     creation_time: datetime
     
-    # Info du conducteur (optionnel, pour l'affichage enrichi)
+    # Info du conducteur (optionnel)
     driver: Optional[UserOut] = None
+    
+    # Liste des réservations (Pour la vue conducteur)
+    reservations: List[ReservationInRide] = []
     
     class Config:
         from_attributes = True
 
 class RideSearchParams(BaseModel):
     """Paramètres de recherche de trajets"""
-    # Adresse de recherche (là où le passager veut partir/arriver)
     address: Optional[str] = None
     lat: Optional[float] = None
     lng: Optional[float] = None
-    
-    # Direction souhaitée
-    from_iut: Optional[bool] = None  # None = les deux directions
-    
-    # Filtres temporels
+    from_iut: Optional[bool] = None
     date: Optional[date] = None
-    time: Optional[time] = None  # L'heure souhaitée (une plage ±30min sera appliquée)
-    
-    # Pagination
+    time: Optional[time] = None
     skip: int = 0
     limit: int = 20
 
 class RideSearchResult(RideOut):
     """Résultat de recherche avec distance par rapport au point de recherche"""
-    # Distance entre le point de recherche et le point de départ/arrivée du trajet
-    distance_from_search: Optional[float] = None  # en km
+    distance_from_search: Optional[float] = None
     
     class Config:
         from_attributes = True
@@ -139,7 +147,7 @@ class ReservationOut(ReservationBase):
     ride_id: int
     passenger_id: int
     
-    # Infos du trajet associé (optionnel)
+    # Infos du trajet associé
     ride: Optional[RideOut] = None
 
     class Config:
@@ -155,7 +163,6 @@ class TokenData(BaseModel):
 
 # --- GOOGLE MAPS ---
 class AddressAutocompleteResult(BaseModel):
-    """Résultat de l'autocomplétion d'adresse"""
     address: str
     lat: float
     lng: float
