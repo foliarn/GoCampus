@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoCampus - Mon Profil</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/profil.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <img src="/static/images/logo.svg" alt="Logo GoCampus">
+            GoCampus
+        </a>
+        <ul class="nav-links">
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/rechercher">Rechercher</a></li>
+            <li><a href="/proposer">Proposer un trajet</a></li>
+            <li><a href="/reservations">Mes réservations</a></li>
+            <li><a href="/annonces">Mes annonces</a></li>
+            <li><a href="/profil" class="active">Mon Profil</a></li>
+            <li><a href="/connexion">Connexion</a></li>
+        </ul>
+    </nav>
+
+    <!-- Titre de la page -->
+    <div class="page-title">
+        <h1>Mon Profil</h1>
+        <p>Gérez vos informations personnelles et vos véhicules</p>
+    </div>
+
+    <!-- Conteneur principal -->
+    <main class="profil-container">
+        
+        <!-- Messages -->
+        <div id="successMessage" class="success-message"></div>
+        <div id="errorMessage" class="error-message"></div>
+
+        <!-- Section Informations Personnelles -->
+        <section class="profil-section">
+            <div class="section-header">
+                <h2>Informations Personnelles</h2>
+                <button class="btn-edit" id="editInfoBtn">Modifier</button>
+            </div>
+            <div class="section-body">
+                <form id="profileForm">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Prénom</span>
+                            <div class="info-value">
+                                <input type="text" id="surname" disabled>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Nom</span>
+                            <div class="info-value">
+                                <input type="text" id="name" disabled>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email</span>
+                            <div class="info-value">
+                                <input type="email" id="email" disabled>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Téléphone</span>
+                            <div class="info-value">
+                                <input type="tel" id="phone_number" disabled>
+                            </div>
+                        </div>
+                        <div class="info-item" style="grid-column: 1 / -1;">
+                            <span class="info-label">Adresse</span>
+                            <div class="info-value">
+                                <input type="text" id="address" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="editActions" style="display: none; margin-top: 20px; text-align: right; gap: 10px; display: none;">
+                        <button type="button" class="btn-cancel" id="cancelEditBtn">Annuler</button>
+                        <button type="submit" class="btn-save">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Section Véhicules -->
+        <section class="profil-section">
+            <div class="section-header">
+                <h2>Mes Véhicules</h2>
+                <button class="btn-add-vehicle" id="addVehicleBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Ajouter un véhicule
+                </button>
+            </div>
+            <div class="section-body">
+                <div id="vehiclesList" class="vehicles-list">
+                    <!-- Les véhicules seront chargés ici par JavaScript -->
+                    <div class="empty-state">
+                        <p>Chargement de vos véhicules...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Ajout/Modification Véhicule -->
+    <div id="vehicleModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Ajouter un véhicule</h2>
+            <form id="vehicleForm">
+                <div class="form-group">
+                    <label>Modèle</label>
+                    <input type="text" id="vehicleModel" class="form-input" placeholder="Ex: Renault Clio" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Plaque d'immatriculation</label>
+                    <input type="text" id="licensePlate" class="form-input" placeholder="Ex: AB-123-CD" required>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Couleur</label>
+                        <input type="text" id="vehicleColor" class="form-input" placeholder="Ex: Bleu">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Nombre de places</label>
+                        <input type="number" id="vehicleSeats" class="form-input" min="1" max="8" value="4" required>
+                    </div>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="btn-cancel" id="closeModalBtn">Annuler</button>
+                    <button type="submit" class="btn-save">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>GoCampus</h4>
+                    <p style="opacity: 0.8; line-height: 1.6;">
+                        Service de covoiturage pour les étudiants de l'Université de Picardie Jules Verne.
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><img src="/static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
+                        <li><img src="/static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>A propos</h4>
+                    <p style="opacity: 0.8; line-height: 1.6;">Un service créé par et pour les étudiants pour faciliter les déplacements.</p>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 GoCampus. Tous droits réservés.
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/profil.js"></script>
+</body>
+</html>

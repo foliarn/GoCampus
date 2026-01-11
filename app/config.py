@@ -12,6 +12,18 @@ class Settings(BaseSettings):
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: str = "5432"
     POSTGRES_DB: str = "gocampus"
+    
+    # Google Maps
+    GOOGLE_MAPS_API_KEY: str = ""
+    
+    # IUT Amiens coordinates (fixed reference point)
+    IUT_AMIENS_ADDRESS: str = "Avenue des Facultés, 80000 Amiens"
+    IUT_AMIENS_LAT: float = 49.8847
+    IUT_AMIENS_LNG: float = 2.2637
+    
+    # Search settings
+    PROXIMITY_RADIUS_KM: float = 5.0
+    TIME_WINDOW_MINUTES: int = 30
 
     model_config = SettingsConfigDict(
         env_file=".env", 

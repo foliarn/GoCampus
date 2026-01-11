@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.database import get_db
 from app.config import settings
+from app import models # Import des modèles pour le typage
 
 # Defines the URL where the client has to send the auth token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
@@ -33,3 +34,14 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise credentials_exception
         
     return user
+
+def get_current_admin(current_user: models.User = Depends(get_current_user)):
+    """
+    Vérifie que l'utilisateur connecté a le rôle 'admin'.
+    """
+    if current_user.role != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Accès refusé. Droits administrateur requis."
+        )
+    return current_user

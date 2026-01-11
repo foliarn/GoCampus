@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DECIMAL, TIMESTAMP, CheckConstraint, ForeignKey
+from sqlalchemy import Column, Integer, Float, Boolean,  String, DECIMAL, TIMESTAMP, CheckConstraint, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import db
 
@@ -8,8 +8,20 @@ class Ride(db):
     ride_id = Column(Integer, primary_key=True, index=True)
     driver_id = Column(Integer, ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     vehicle_id = Column(Integer, ForeignKey('vehicles.vehicle_id', ondelete='RESTRICT'))
+
     address_from = Column(String(255), nullable=False)
     address_to = Column(String(255), nullable=False)
+
+    lat_from = Column(Float, nullable=True)
+    lng_from = Column(Float, nullable=True)
+    lat_to = Column(Float, nullable=True)
+    lng_to = Column(Float, nullable=True)
+    
+    distance_km = Column(Float, nullable=True)
+    duration_min = Column(Integer, nullable=True)
+
+    from_iut = Column(Boolean, nullable=False, default=False)
+
     departure = Column(TIMESTAMP, nullable=False)
     max_seats = Column(Integer, nullable=False)
     price = Column(DECIMAL(4, 2), nullable=False)

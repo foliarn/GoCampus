@@ -12,6 +12,7 @@ function getToken() {
 
 function removeToken() {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('user_role'); // Nettoyage rôle
 }
 
 function isLoggedIn() {
@@ -37,22 +38,28 @@ async function fetchWithAuth(url, options = {}) {
 
 // Pages qui nécessitent d'être connecté
 const protectedPages = ['/reservations', '/annonces', '/proposer'];
+// Pages réservées Admin
+const adminPages = ['/admin/dashboard'];
 
 // Pages accessibles uniquement si NON connecté
 const guestOnlyPages = ['/connexion', '/inscription'];
 
-function checkPageAccess() {
+async function checkPageAccess() {
     const currentPath = window.location.pathname;
     
+    if (guestOnlyPages.includes(currentPath) && isLoggedIn()) {
+        window.location.href = '/';
+        return false;
+    }
+
     if (protectedPages.includes(currentPath) && !isLoggedIn()) {
-        // Rediriger vers la connexion si non connecté
         window.location.href = '/connexion';
         return false;
     }
     
-    if (guestOnlyPages.includes(currentPath) && isLoggedIn()) {
-        // Rediriger vers l'accueil si déjà connecté
-        window.location.href = '/';
+    // Vérification basique admin (la vraie vérif est faite par l'API)
+    if (currentPath.startsWith('/admin') && !isLoggedIn()) {
+        window.location.href = '/connexion';
         return false;
     }
     
@@ -63,53 +70,69 @@ function checkPageAccess() {
 // MISE À JOUR DE L'INTERFACE
 // ============================================
 
-function updateUI() {
+async function updateUI() {
     const logged = isLoggedIn();
     
     // 1. Mettre à jour la navbar
-    updateNavbar(logged);
+    await updateNavbar(logged);
     
     // 2. Masquer/afficher les éléments selon l'état de connexion
     updateVisibility(logged);
 }
 
-function updateNavbar(logged) {
+async function updateNavbar(logged) {
     const navLinks = document.querySelector('.nav-links');
-    
     if (!navLinks) return;
     
-    // Trouver le lien Connexion
     const connexionLink = navLinks.querySelector('a[href="/connexion"]');
     
-    if (logged && connexionLink) {
+    if (logged) {
+        // --- LOGIQUE ADMIN AJOUTÉE ICI ---
+        try {
+            // On vérifie le rôle une fois connecté pour savoir si on affiche le bouton Admin
+            // Optimisation : On pourrait stocker ça dans le localStorage pour éviter l'appel à chaque page
+            const res = await fetchWithAuth('/users/me');
+            if(res.ok) {
+                const user = await res.json();
+                if(user.role === 'admin') {
+                    // Ajouter le lien Admin s'il n'existe pas déjà
+                    if(!navLinks.querySelector('.admin-link')) {
+                        const li = document.createElement('li');
+                        li.innerHTML = '<a href="/admin/dashboard" class="admin-link" style="color: #EF4444; font-weight:bold;">Administration</a>';
+                        // Insérer avant le dernier élément (Déconnexion)
+                        navLinks.insertBefore(li, navLinks.lastElementChild);
+                    }
+                }
+            }
+        } catch(e) { console.error("Erreur vérification rôle admin", e); }
+
         // Remplacer par Déconnexion
-        connexionLink.textContent = 'Déconnexion';
-        connexionLink.href = '#';
-        connexionLink.classList.remove('active');
-        connexionLink.addEventListener('click', handleLogout);
-    }
-    
-    // Si déconnecté et qu'on a un bouton déconnexion, le remettre en Connexion
-    const logoutLink = navLinks.querySelector('a[href="#"]');
-    if (!logged && logoutLink && logoutLink.textContent === 'Déconnexion') {
-        logoutLink.textContent = 'Connexion';
-        logoutLink.href = '/connexion';
-        logoutLink.removeEventListener('click', handleLogout);
+        if (connexionLink) {
+            connexionLink.textContent = 'Déconnexion';
+            connexionLink.href = '#';
+            connexionLink.classList.remove('active');
+            connexionLink.addEventListener('click', handleLogout);
+        }
+    } else {
+        // Si déconnecté
+        const logoutLink = navLinks.querySelector('a[href="#"]');
+        if (logoutLink && logoutLink.textContent === 'Déconnexion') {
+            logoutLink.textContent = 'Connexion';
+            logoutLink.href = '/connexion';
+            logoutLink.removeEventListener('click', handleLogout);
+        }
+        // Supprimer lien admin si présent
+        const adminLink = navLinks.querySelector('.admin-link');
+        if(adminLink) adminLink.parentElement.remove();
     }
 }
 
 function updateVisibility(logged) {
-    // Éléments visibles uniquement si NON connecté
     const guestElements = document.querySelectorAll('.guest-only');
-    guestElements.forEach(el => {
-        el.style.display = logged ? 'none' : '';
-    });
+    guestElements.forEach(el => el.style.display = logged ? 'none' : '');
     
-    // Éléments visibles uniquement si connecté
     const authElements = document.querySelectorAll('.auth-only');
-    authElements.forEach(el => {
-        el.style.display = logged ? '' : 'none';
-    });
+    authElements.forEach(el => el.style.display = logged ? '' : 'none');
 }
 
 function handleLogout(e) {
@@ -119,15 +142,13 @@ function handleLogout(e) {
 }
 
 // ============================================
-// FORMULAIRE D'INSCRIPTION
+// FORMULAIRES (INSCRIPTION / CONNEXION)
 // ============================================
 
 const registerForm = document.getElementById('registerForm');
-
 if (registerForm) {
     registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        
         const errorDiv = document.getElementById('errorMessage');
         errorDiv.style.display = 'none';
         
@@ -138,43 +159,35 @@ if (registerForm) {
             password: document.getElementById('password').value,
             phone_number: document.getElementById('phone').value,
             address: null,
-            role: "normal"
+            role: "normal" 
         };
         
         try {
             const response = await fetch('/auth/register', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
             });
             
             if (response.ok) {
-                alert('Inscription réussie ! Vous pouvez maintenant vous connecter.');
+                alert('Inscription réussie !');
                 window.location.href = '/connexion';
             } else {
                 const error = await response.json();
-                errorDiv.textContent = error.detail || 'Erreur lors de l\'inscription';
+                errorDiv.textContent = error.detail || 'Erreur inscription';
                 errorDiv.style.display = 'block';
             }
         } catch (err) {
-            errorDiv.textContent = 'Erreur de connexion au serveur';
+            errorDiv.textContent = 'Erreur serveur';
             errorDiv.style.display = 'block';
         }
     });
 }
 
-// ============================================
-// FORMULAIRE DE CONNEXION
-// ============================================
-
 const loginForm = document.getElementById('loginForm');
-
 if (loginForm) {
     loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        
         const errorDiv = document.getElementById('errorMessage');
         errorDiv.style.display = 'none';
         
@@ -185,9 +198,7 @@ if (loginForm) {
         try {
             const response = await fetch('/auth/token', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: formData
             });
             
@@ -197,24 +208,21 @@ if (loginForm) {
                 window.location.href = '/';
             } else {
                 const error = await response.json();
-                errorDiv.textContent = error.detail || 'Email ou mot de passe incorrect';
+                errorDiv.textContent = error.detail || 'Erreur connexion';
                 errorDiv.style.display = 'block';
             }
         } catch (err) {
-            errorDiv.textContent = 'Erreur de connexion au serveur';
+            errorDiv.textContent = 'Erreur serveur';
             errorDiv.style.display = 'block';
         }
     });
 }
 
 // ============================================
-// INITIALISATION AU CHARGEMENT
+// INITIALISATION
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Vérifier l'accès à la page
-    if (checkPageAccess()) {
-        // Mettre à jour l'interface
-        updateUI();
-    }
+    checkPageAccess();
+    updateUI();
 });

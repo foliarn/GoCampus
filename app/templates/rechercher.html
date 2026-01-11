@@ -4,17 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoCampus - Rechercher</title>
-    <!-- Police Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="../static/css/rechercher.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/rechercher.css">
 </head>
 <body>
 
     <!-- Header -->
     <nav class="navbar">
         <a href="/" class="logo">
-            <img src="../static/images/logo.svg" alt="Logo GoCampus">
+            <img src="/static/images/logo.svg" alt="Logo GoCampus">
             GoCampus
         </a>
         <ul class="nav-links">
@@ -29,7 +28,8 @@
 
     <!-- Hero Search -->
     <header class="hero-search">
-        <h1>Rechercher un trajet</h1>
+        <h1>Trouvez votre covoiturage</h1>
+        <p style="opacity:0.9;">Recherchez un trajet qui passe près de chez vous</p>
     </header>
 
     <!-- Main Content -->
@@ -37,52 +37,85 @@
         
         <!-- Formulaire de recherche -->
         <div class="search-card">
-            <form action="#">
+            
+            <div id="apiError" class="api-error" style="display: none;"></div>
+            
+            <!-- Toggle direction -->
+            <div class="direction-toggle">
+                <button type="button" id="toIutBtn" class="active" onclick="setSearchDirection(false)">
+                    Aller à l'IUT
+                </button>
+                <button type="button" id="fromIutBtn" onclick="setSearchDirection(true)">
+                    Partir de l'IUT
+                </button>
+            </div>
+            
+            <form id="searchForm">
                 <div class="search-form-grid">
                     
-                    <!-- Départ -->
+                    <!-- Adresse -->
                     <div class="form-group">
-                        <label class="form-label">Départ</label>
-                        <div class="input-wrapper">
-                            <input type="text" placeholder="Ville de départ" required>
+                        <label class="form-label" id="addressLabel">Mon adresse de départ</label>
+                        <div class="autocomplete-container" id="autocompleteContainer">
+                            <!-- Google Place Element injecté ici -->
                         </div>
-                    </div>
-
-                    <!-- Arrivée -->
-                    <div class="form-group">
-                        <label class="form-label">Arrivée</label>
-                        <div class="input-wrapper">
-                            <input type="text" value="IUT Amiens">
-                        </div>
+                        <div id="searchAddressFeedback" class="selected-address-confirm"></div>
                     </div>
 
                     <!-- Date -->
                     <div class="form-group">
                         <label class="form-label">Date</label>      
                         <div class="input-wrapper">
-                            <input type="date" required> 
+                            <input type="date" id="searchDate" required> 
+                        </div>
+                    </div>
+                    
+                    <!-- Heure -->
+                    <div class="form-group">
+                        <label class="form-label">Heure souhaitée</label>      
+                        <div class="input-wrapper">
+                            <input type="time" id="searchTime" required> 
                         </div>
                     </div>
 
                     <!-- Bouton Rechercher -->
                     <button type="submit" class="btn-search-large">
-                        <img src="../static/images/icon-search.svg" alt="Search" class="icon-img" style="filter: brightness(0) invert(1);">
-                        Rechercher
+                        🔍 Rechercher
                     </button>
                 </div>
+                
+                <!-- Champs cachés -->
+                <input type="hidden" id="searchLat">
+                <input type="hidden" id="searchLng">
+                <input type="hidden" id="searchAddressFormatted">
+                <input type="hidden" id="searchFromIut" value="false">
             </form>
-        </div>
-
-        <!-- Résultats (Message "Aucun trajet...") A gerer avec BD  -->
-        <div class="results-area">
-            <p class="no-results-msg">Aucun trajet trouvé pour ces critères</p>
             
-            <div class="action-links">
-                <a href="#" class="text-link">Voir les derniers trajets publiés</a>
-                <a href="rechercher.html" class="text-link" style="color: var(--gray-text); border-bottom: 1px solid #ccc;">Réinitialiser les filtres</a>
+            <div id="searchInfo" class="search-info">
+                Recherche autour de <strong id="timeRange">--</strong> (Rayon 5km)
             </div>
         </div>
 
+        <!-- Zone de résultats -->
+        <div id="resultsArea">
+            <div class="no-results">
+                <h3>🚗 Prêt à partir ?</h3>
+                <p>Remplissez le formulaire ci-dessus pour voir les trajets disponibles.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal de Confirmation -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Confirmation</h3>
+            <p>Souhaitez-vous réserver une place pour ce trajet ?</p>
+            <div class="modal-buttons">
+                <button id="confirmNo" class="btn-confirm-no">Non</button>
+                <button id="confirmYes" class="btn-confirm-yes">Oui</button>
+            </div>
+        </div>
     </div>
 
     <!-- Footer -->
@@ -98,8 +131,8 @@
                 <div class="footer-col">
                     <h4>Contact</h4>
                     <ul>
-                        <li><img src="../static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
-                        <li><img src="../static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
+                        <li><img src="/static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
+                        <li><img src="/static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -112,6 +145,29 @@
             </div>
         </div>
     </footer>
+    
     <script src="/static/js/auth.js"></script>
+    <script src="/static/js/rechercher.js"></script>
+    
+    <!-- Script Maps (chargé à la fin) -->
+    <script>
+        async function loadGoogleMapsAPI() {
+            try {
+                const response = await fetch('/api/config/maps');
+                const config = await response.json();
+                if (config.api_key) {
+                    const script = document.createElement('script');
+                    // v=weekly est important pour les Web Components
+                    script.src = `https://maps.googleapis.com/maps/api/js?key=${config.api_key}&loading=async&v=weekly&callback=initSearchAutocomplete`;
+                    script.async = true; script.defer = true;
+                    document.head.appendChild(script);
+                } else {
+                    document.getElementById('apiError').textContent = "Clé API manquante";
+                    document.getElementById('apiError').style.display = 'block';
+                }
+            } catch (error) { console.error('Maps Config Error:', error); }
+        }
+        loadGoogleMapsAPI();
+    </script>
 </body>
 </html>

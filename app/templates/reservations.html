@@ -6,15 +6,15 @@
     <title>GoCampus - Mes Réservations</title>
     <!-- Police Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="../static/css/reservation.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/reservation.css">
 </head>
 <body>
 
     <!-- Header -->
     <nav class="navbar">
         <a href="/" class="logo">
-            <img src="../static/images/logo.svg" alt="Logo GoCampus">
+            <img src="/static/images/logo.svg" alt="Logo GoCampus">
             GoCampus
         </a>
         <ul class="nav-links">
@@ -29,60 +29,17 @@
 
     <!-- Titre Section -->
     <div class="page-title">
-        <h1>Mes Réservations (Passager)</h1>
-        <p>Retrouvez ici les trajets que vous avez réservés.</p>
+        <h1>Mes Réservations</h1>
+        <p>Retrouvez ici les trajets que vous avez réservés en tant que passager.</p>
     </div>
 
-    
+    <!-- Conteneur Principal (Rempli par JS) -->
     <div class="main-container" id="reservations-container">
-        <p class="no-results-msg">Chargement...</p>
-    </div>
-
-    <!-- Exemple Carte de réservation
-
-    <div class="reservations-list">
-
-        <div class="reservation-card">
-            <div class="card-header">
-                <span class="date">Lun. 12 Janv. 2025</span>
-                <span class="status status-confirmed">Confirmé</span>
-            </div>
-            
-            <div class="card-body">
-                <div class="times">
-                    <div class="time-group">
-                        <span class="hour">08:00</span>
-                        <span class="city">Gare de Creil</span>
-                    </div>
-                    <div class="timeline-visual">
-                        <div class="dot"></div>
-                        <div class="line"></div>
-                        <div class="dot"></div>
-                    </div>
-                    <div class="time-group">
-                        <span class="hour">09:30</span>
-                        <span class="city">IUT Amiens</span>
-                    </div>
-                </div>
-                
-                <div class="price-tag">
-                    1,80 €
-                </div>
-            </div>
-
-            <div class="card-footer">
-                <div class="driver-info">
-                    <div class="avatar-circle">T</div>
-                    <span>Thomas D.</span>
-                    <span class="rating">★ 4.8</span>
-                </div>
-                <a href="#" class="btn-details">Noter le conducteur</a>
-            </div>
+        <!-- Le loader sera injecté ici par JS -->
+        <div style="text-align: center; margin-top: 50px; color: #6B7280;">
+            Chargement de vos réservations...
         </div>
-
-        
-
-    </div> -->
+    </div>
 
     <!-- Footer -->
     <footer>
@@ -97,8 +54,8 @@
                 <div class="footer-col">
                     <h4>Contact</h4>
                     <ul>
-                        <li><img src="../static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
-                        <li><img src="../static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
+                        <li><img src="/static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
+                        <li><img src="/static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -111,7 +68,21 @@
             </div>
         </div>
     </footer>
+
     <script src="/static/js/auth.js"></script>
     <script src="/static/js/rides.js"></script>
+    
+    <!-- Script d'initialisation spécifique à cette page -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier la connexion
+            if (!isLoggedIn()) {
+                window.location.href = '/connexion';
+                return;
+            }
+            // Charger les réservations
+            loadMyReservations('reservations-container');
+        });
+    </script>
 </body>
 </html>

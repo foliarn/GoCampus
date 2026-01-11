@@ -25,7 +25,19 @@ def book_ride(
         
     if ride.driver_id == current_user.user_id:
         raise HTTPException(status_code=400, detail="You cannot book your own ride.")
-
+    
+    # Checking if there is a ongoing reservation for this user
+    existing_reservation = crud.get_reservation_by_passenger_and_ride(
+        db, passenger_id=current_user.user_id, ride_id=reservation.ride_id
+    )
+    if existing_reservation:
+        # Checking 'waiting' ou 'confirmed' status
+        if existing_reservation.status in ['waiting', 'confirmed']:
+             raise HTTPException(
+                status_code=400, 
+                detail="Vous avez déjà une réservation en cours pour ce trajet."
+            )
+        
     # 2. Attempt to create reservation
     db_reservation = crud.create_reservation(db=db, reservation=reservation, passenger_id=current_user.user_id)
     
@@ -70,3 +82,47 @@ def cancel_reservation(
         raise HTTPException(status_code=400, detail="Reservation is already canceled")
 
     return crud.cancel_reservation(db=db, reservation=reservation)
+
+@router.put("/{reservation_id}/confirm", response_model=schemas.ReservationOut)
+def confirm_reservation(
+    reservation_id: int,
+    current_user: schemas.UserOut = Depends(deps.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Le conducteur accepte une réservation 'waiting' -> 'confirmed'.
+    """
+    reservation = crud.get_reservation_by_id(db, reservation_id=reservation_id)
+    if not reservation:
+        raise HTTPException(status_code=404, detail="Réservation non trouvée")
+    
+    # Vérifier que l'utilisateur est bien le conducteur du trajet
+    if reservation.ride.driver_id != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Seul le conducteur peut confirmer cette réservation")
+    
+    if reservation.status != 'waiting':
+        raise HTTPException(status_code=400, detail="Cette réservation n'est pas en attente")
+        
+    return crud.update_reservation_status(db, reservation, 'confirmed')
+
+@router.put("/{reservation_id}/refuse", response_model=schemas.ReservationOut)
+def refuse_reservation(
+    reservation_id: int,
+    current_user: schemas.UserOut = Depends(deps.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Le conducteur refuse une réservation 'waiting' -> 'canceled'.
+    """
+    reservation = crud.get_reservation_by_id(db, reservation_id=reservation_id)
+    if not reservation:
+        raise HTTPException(status_code=404, detail="Réservation non trouvée")
+    
+    if reservation.ride.driver_id != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Seul le conducteur peut refuser cette réservation")
+        
+    # On peut refuser une réservation confirmée ou en attente
+    if reservation.status not in ['waiting', 'confirmed']:
+        raise HTTPException(status_code=400, detail="Impossible de refuser cette réservation (déjà annulée ou terminée)")
+        
+    return crud.update_reservation_status(db, reservation, 'canceled')
