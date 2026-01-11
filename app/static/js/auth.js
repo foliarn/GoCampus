@@ -84,55 +84,56 @@ async function updateNavbar(logged) {
     const navLinks = document.querySelector('.nav-links');
     if (!navLinks) return;
     
-    const connexionLink = navLinks.querySelector('a[href="/connexion"]');
+    const loginLink = document.getElementById('loginLink');
+    const userMenu = document.getElementById('userMenu');
+    const userNameSpan = document.getElementById('userName');
+    const adminLink = document.getElementById('adminLink');
+    const logoutBtn = document.getElementById('logoutBtn');
     
     if (logged) {
-        // --- LOGIQUE ADMIN AJOUTÉE ICI ---
+        // Récupérer les infos utilisateur
         try {
-            // On vérifie le rôle une fois connecté pour savoir si on affiche le bouton Admin
-            // Optimisation : On pourrait stocker ça dans le localStorage pour éviter l'appel à chaque page
             const res = await fetchWithAuth('/users/me');
             if(res.ok) {
                 const user = await res.json();
-                if(user.role === 'admin') {
-                    // Ajouter le lien Admin s'il n'existe pas déjà
-                    if(!navLinks.querySelector('.admin-link')) {
-                        const li = document.createElement('li');
-                        li.innerHTML = '<a href="/admin/dashboard" class="admin-link" style="color: #EF4444; font-weight:bold;">Administration</a>';
-                        // Insérer avant le dernier élément (Déconnexion)
-                        navLinks.insertBefore(li, navLinks.lastElementChild);
-                    }
+                
+                // Afficher le nom de l'utilisateur
+                if (userNameSpan) {
+                    userNameSpan.textContent = user.name;
+                }
+                
+                // Afficher/masquer le lien admin
+                if (adminLink && user.role === 'admin') {
+                    adminLink.style.display = 'block';
+                }
+                
+                // Afficher le menu utilisateur
+                if (userMenu) {
+                    userMenu.style.display = 'block';
+                }
+                
+                // Masquer le lien connexion
+                if (loginLink) {
+                    loginLink.style.display = 'none';
                 }
             }
-        } catch(e) { console.error("Erreur vérification rôle admin", e); }
-
-        // Remplacer par Déconnexion
-        if (connexionLink) {
-            connexionLink.textContent = 'Déconnexion';
-            connexionLink.href = '#';
-            connexionLink.classList.remove('active');
-            connexionLink.addEventListener('click', handleLogout);
+        } catch(e) {
+            console.error("Erreur récupération utilisateur", e);
         }
     } else {
-        // Si déconnecté
-        const logoutLink = navLinks.querySelector('a[href="#"]');
-        if (logoutLink && logoutLink.textContent === 'Déconnexion') {
-            logoutLink.textContent = 'Connexion';
-            logoutLink.href = '/connexion';
-            logoutLink.removeEventListener('click', handleLogout);
+        // Utilisateur non connecté
+        if (userMenu) {
+            userMenu.style.display = 'none';
         }
-        // Supprimer lien admin si présent
-        const adminLink = navLinks.querySelector('.admin-link');
-        if(adminLink) adminLink.parentElement.remove();
+        if (loginLink) {
+            loginLink.style.display = 'block';
+        }
     }
 }
 
 function updateVisibility(logged) {
     const guestElements = document.querySelectorAll('.guest-only');
     guestElements.forEach(el => el.style.display = logged ? 'none' : '');
-    
-    const authElements = document.querySelectorAll('.auth-only');
-    authElements.forEach(el => el.style.display = logged ? '' : 'none');
 }
 
 function handleLogout(e) {
@@ -222,7 +223,36 @@ if (loginForm) {
 // INITIALISATION
 // ============================================
 
+// Initialiser le menu déroulant
 document.addEventListener('DOMContentLoaded', function() {
+    const userMenuToggle = document.getElementById('userMenuToggle');
+    const userMenu = document.getElementById('userMenu');
+    const logoutBtn = document.getElementById('logoutBtn');
+    
+    // Toggle du menu au clic
+    if (userMenuToggle && userMenu) {
+        userMenuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userMenu.classList.toggle('active');
+        });
+        
+        // Fermer le menu si on clique ailleurs
+        document.addEventListener('click', function(e) {
+            if (!userMenu.contains(e.target)) {
+                userMenu.classList.remove('active');
+            }
+        });
+    }
+    
+    // Gestion de la déconnexion
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            removeToken();
+            window.location.href = '/';
+        });
+    }
+    
     checkPageAccess();
     updateUI();
 });
