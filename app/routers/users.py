@@ -15,7 +15,7 @@ def read_users_me(current_user: schemas.UserOut = Depends(deps.get_current_user)
 
 @router.put("/me", response_model=schemas.UserOut)
 def update_user_profile(
-    user_update: schemas.UserCreate,
+    user_update: schemas.UserUpdate, # <--- REMPLACEZ UserCreate PAR UserUpdate
     current_user: schemas.UserOut = Depends(deps.get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -40,3 +40,36 @@ def update_user_profile(
         )
     
     return updated_user
+
+@router.get("/{user_id}/info", response_model=schemas.UserOut)
+def get_user_info(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    """Get public user information including rating"""
+    user = crud.get_user_by_id(db, user_id=user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="Utilisateur non trouvé"
+        )
+
+    # Calculate average rating and count for drivers
+    average_rating = crud.calculate_driver_average_rating(db, driver_id=user_id)
+    review_count = crud.get_driver_review_count(db, driver_id=user_id)
+
+    # Create response with rating info
+    user_dict = {
+        "user_id": user.user_id,
+        "name": user.name,
+        "surname": user.surname,
+        "email": user.email,
+        "phone_number": user.phone_number,
+        "address": user.address,
+        "role": user.role,
+        "average_rating": average_rating,
+        "review_count": review_count
+    }
+
+    return user_dict

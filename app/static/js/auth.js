@@ -21,15 +21,22 @@ function isLoggedIn() {
 
 async function fetchWithAuth(url, options = {}) {
     const token = getToken();
-    
+
     if (token) {
         options.headers = {
             ...options.headers,
             'Authorization': `Bearer ${token}`
         };
     }
-    
-    return fetch(url, options);
+
+    const response = await fetch(url, options);
+
+    // Si le token a expiré (401), on le supprime
+    if (response.status === 401) {
+        removeToken();
+    }
+
+    return response;
 }
 
 // ============================================

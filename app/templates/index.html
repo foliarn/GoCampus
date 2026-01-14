@@ -47,32 +47,11 @@
     </header>
 
     <!-- Barre de Recherche -->
-    <div class="search-wrapper">
-        <form class="search-bar">
-            <!-- DEPART -->
-            <div class="input-group">
-                <span class="input-label">Départ</span>
-                <div class="input-field">
-                    <img src="/static/images/icon-map-gris.svg" alt="Loc" class="icon-img">
-                    <input type="text" placeholder="D'où partez-vous ?">
-                </div>
-            </div>
-            
-            <!-- ARRIVEE -->
-            <div class="input-group">
-                <span class="input-label">Arrivée</span>
-                <div class="input-field">
-                    <img src="/static/images/icon-arriver.svg" alt="Loc" class="icon-img">
-                    <input type="text" value="IUT Amiens">
-                </div>
-            </div>
-
-            <!-- Bouton avec image recherche -->
-            <button type="button" class="btn-search">
-                <img src="/static/images/icon-search.svg" alt="Search" class="icon-img" style="filter: brightness(0) invert(1);">
-                Rechercher
-            </button>
-        </form>
+    <div class="cta-action-container">
+        <a href="/rechercher" class="btn-main-action">
+            <img src="/static/images/icon-search.svg" alt="" class="icon-img" style="filter: brightness(0) invert(0);"> 
+            Trouver un trajet
+        </a>
     </div>
 
     <!-- Contenu Principal -->
@@ -125,6 +104,21 @@
         </section>
 
     </main>
+
+    <!-- User Info Modal -->
+    <div id="userInfoModal" class="modal">
+        <div class="modal-content user-info-modal">
+            <div class="modal-header">
+                <h2>Informations utilisateur</h2>
+                <span class="close-modal" onclick="closeUserInfoModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="userInfoContent" class="user-info-content">
+                    <div class="loading-spinner">Chargement...</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer>

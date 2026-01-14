@@ -22,23 +22,45 @@
 .hero h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
 .hero p { font-size: 1.1rem; opacity: 0.9; font-weight: 300; }
 
-/* --- SEARCH BAR --- */
-.search-wrapper {
-    max-width: 800px;
-    margin: -50px auto 60px;
-    padding: 0 20px;
+/* ========================================= */
+/* NOUVEAU BOUTON D'ACTION ACCUEIL           */
+/* ========================================= */
+
+.cta-action-container {
+    display: flex;
+    justify-content: center;
+    margin: -35px auto 60px; /* Remontée négative pour chevaucher le Hero */
     position: relative;
     z-index: 10;
+    padding: 0 20px;
 }
 
-.search-bar {
-    background: var(--white);
-    border-radius: 12px;
+.btn-main-action {
+    background-color: var(--white);
+    color: var(--primary-blue); /* Texte bleu */
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 18px 45px;
+    border-radius: 50px; /* Forme de pilule */
     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    padding: 10px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 12px;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.btn-main-action:hover {
+    transform: translateY(-4px); /* Effet de levée au survol */
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    background-color: #f8f9fa;
+}
+
+.btn-main-action img {
+    width: 20px;
+    height: 20px;
+    opacity: 0.8;
 }
 
 .input-group {
@@ -221,6 +243,88 @@
 .btn-reserve:hover { background-color: #388E3C; }
 .btn-reserve:disabled { background-color: #9CA3AF; cursor: not-allowed; }
 
+/* ========================================= */
+/* STYLE SPÉCIFIQUE ACCUEIL (TRIP CARD)     */
+/* ========================================= */
+
+.trip-card {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    padding: 25px;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%; /* Pour que toutes les cartes aient la même hauteur */
+}
+
+.trip-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    border-color: var(--primary-blue);
+}
+
+/* Badge de prix en haut à droite */
+.price-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: var(--primary-blue);
+    color: white;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 5px rgba(0, 114, 206, 0.3);
+}
+
+/* Corps de la carte */
+.trip-card-body {
+    margin-top: 10px;
+}
+
+.trip-time {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--dark-blue);
+    line-height: 1;
+    margin-bottom: 10px;
+}
+
+.trip-route {
+    margin-bottom: 15px;
+}
+
+.trip-from {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dark-text);
+    margin-bottom: 4px;
+    display: block;
+}
+
+.trip-to {
+    font-size: 0.9rem;
+    color: var(--gray-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Pied de carte (Date) */
+.trip-date {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #f3f4f6;
+    color: var(--green-accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
 
 @media (max-width: 768px) {
     .input-group { border-right: none; border-bottom: 1px solid #eee; width: 100%; }

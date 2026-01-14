@@ -19,20 +19,42 @@ async function loadRides(containerId, limit = 4) {
             container.innerHTML = '<p class="no-results-msg">Aucun trajet disponible pour le moment.</p>';
             return;
         }
-
+        
         // Pour la page d'accueil, format simple
         if(window.location.pathname === '/') {
              container.innerHTML = rides.map(ride => {
-                 const date = new Date(ride.departure).toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
-                 const time = new Date(ride.departure).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+                 // Formatage de la date et de l'heure
+                 const dateObj = new Date(ride.departure);
+                 const date = dateObj.toLocaleDateString('fr-FR', {weekday: 'short', day:'numeric', month:'short'});
+                 const time = dateObj.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+
+                 // Détermination du texte de direction
+                 const destinationText = ride.from_iut ? `Vers ${ride.address_to}` : `Vers IUT Amiens`;
+                 const departText = ride.from_iut ? "Départ IUT Amiens" : ride.address_from;
+
+                 // Driver info
+                 const driverName = ride.driver ? `${ride.driver.name} ${ride.driver.surname}` : 'Conducteur';
+
                  return `
-                    <article class="trip-card">
-                        <span class="price-badge">${parseFloat(ride.price).toFixed(2)}€</span>
-                        <div class="card-body" style="padding:15px;">
-                            <div class="time" style="font-size:1.1rem; font-weight:700;">${time}</div>
-                            <div class="place" style="font-size:0.9rem;">${ride.address_from}</div>
-                            <div style="margin-top:5px; font-size:0.8rem; color:#6B7280;">Vers ${ride.address_to}</div>
-                            <div style="margin-top:10px; font-weight:600; color:#0072CE;">${date}</div>
+                    <article class="trip-card" onclick="window.location.href='/rechercher'">
+                        <span class="price-badge">${parseFloat(ride.price).toFixed(2)} €</span>
+
+                        <div class="trip-card-body">
+                            <div class="trip-time">${time}</div>
+
+                            <div class="trip-route">
+                                <span class="trip-from">${departText}</span>
+                                <div class="trip-to">
+                                    <span>➔</span> ${destinationText}
+                                </div>
+                            </div>
+
+                            <div class="trip-date">📅 ${date}</div>
+
+                            <div class="trip-driver">
+                                <span class="driver-label">Conducteur:</span>
+                                <span class="driver-name-link" onclick="event.stopPropagation(); showUserInfo(${ride.driver_id})">${driverName}</span>
+                            </div>
                         </div>
                     </article>
                  `;
@@ -142,8 +164,8 @@ function createMyAdCard(ride) {
     
     if (confirmedPassengers.length > 0) {
         // Liste des noms
-        const names = confirmedPassengers.map(r => 
-            `<span style="background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:12px; font-size:0.85rem;">${r.passenger.name} ${r.passenger.surname}</span>`
+        const names = confirmedPassengers.map(r =>
+            `<span class="passenger-badge" onclick="showUserInfo(${r.passenger.user_id})">${r.passenger.name} ${r.passenger.surname}</span>`
         ).join(' ');
         
         passengersHtml = `
@@ -175,7 +197,7 @@ function createMyAdCard(ride) {
                     <div class="request-row">
                         <div class="user">
                             <div class="avatar">${req.passenger.name.charAt(0)}</div>
-                            <span>${req.passenger.name} ${req.passenger.surname}</span>
+                            <span class="passenger-name-link" onclick="showUserInfo(${req.passenger.user_id})">${req.passenger.name} ${req.passenger.surname}</span>
                         </div>
                         <div class="actions">
                             <button class="accept" onclick="handleReservationAction(${req.reservation_id}, 'confirm')" title="Accepter">✓</button>
@@ -299,25 +321,52 @@ async function loadMyReservations(containerId) {
             return;
         }
 
-        container.innerHTML = reservations.map(res => {
-            // Logique d'affichage simplifiée pour l'exemple
+        // Check for existing reviews for each reservation
+        const reservationsWithReviewStatus = await Promise.all(
+            reservations.map(async (res) => {
+                const hasReview = await checkReviewExists(res.reservation_id);
+                return { ...res, hasReview };
+            })
+        );
+
+        container.innerHTML = reservationsWithReviewStatus.map(res => {
             const statusMap = {
                 'waiting': {t:'En attente', c:'status-waiting'},
                 'confirmed': {t:'Confirmé', c:'status-confirmed'},
-                'canceled': {t:'Annulé', c:'status-canceled'}
+                'canceled': {t:'Annulé', c:'status-canceled'},
+                'finished': {t:'Terminé', c:'status-finished'}
             };
             const st = statusMap[res.status] || {t:res.status, c:''};
             const date = new Date(res.ride.departure).toLocaleDateString('fr-FR');
-            
+            const time = new Date(res.ride.departure).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+
+            // Check if ride is in the past
+            const isPast = new Date(res.ride.departure) < new Date();
+
+            // Show review button if: ride is past, reservation is confirmed, and no review exists
+            const canReview = isPast && res.status === 'confirmed' && !res.hasReview;
+
             return `
                 <div class="reservation-card">
                     <div class="card-header">
-                        <span class="date">${date}</span>
+                        <span class="date">${date} à ${time}</span>
                         <span class="status-badge ${st.c}">${st.t}</span>
                     </div>
                     <div class="card-body">
-                        <div>Trajet vers ${res.ride.address_to}</div>
-                        ${res.status === 'waiting' ? `<button onclick="cancelMyReservation(${res.reservation_id})" class="btn-cancel">Annuler</button>` : ''}
+                        <div class="ride-info">
+                            <div><strong>De:</strong> ${res.ride.address_from}</div>
+                            <div><strong>Vers:</strong> ${res.ride.address_to}</div>
+                            <div><strong>Places réservées:</strong> ${res.seats_booked}</div>
+                            <div>
+                                <strong>Conducteur:</strong>
+                                <span class="driver-name-link" onclick="showUserInfo(${res.ride.driver_id})">${res.ride.driver.name} ${res.ride.driver.surname}</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            ${res.status === 'waiting' && !isPast ? `<button onclick="cancelMyReservation(${res.reservation_id})" class="btn-cancel">Annuler</button>` : ''}
+                            ${canReview ? `<button onclick="openReviewModal(${res.reservation_id}, '${res.ride.driver.name} ${res.ride.driver.surname}')" class="btn-review">Laisser un avis</button>` : ''}
+                            ${res.hasReview ? `<span class="review-status">✓ Avis laissé</span>` : ''}
+                        </div>
                     </div>
                 </div>
             `;
@@ -325,6 +374,16 @@ async function loadMyReservations(containerId) {
 
     } catch (e) {
         console.error(e);
+        container.innerHTML = '<div class="error-msg">Erreur lors du chargement des réservations.</div>';
+    }
+}
+
+async function checkReviewExists(reservationId) {
+    try {
+        const response = await fetch(`/reviews/reservation/${reservationId}`);
+        return response.ok; // Returns true if review exists (200), false if not (404)
+    } catch (e) {
+        return false;
     }
 }
 
@@ -334,6 +393,302 @@ window.cancelMyReservation = async function(id) {
         loadMyReservations('reservations-container');
     }
 }
+
+// ============================================
+// REVIEW MODAL & FUNCTIONALITY
+// ============================================
+
+let currentReservationId = null;
+let selectedRating = 0;
+
+window.openReviewModal = function(reservationId, driverName) {
+    currentReservationId = reservationId;
+    selectedRating = 0;
+
+    // Set driver name
+    document.getElementById('driverNameDisplay').textContent = driverName;
+
+    // Reset form
+    document.getElementById('reviewComment').value = '';
+    document.getElementById('charCount').textContent = '0';
+    document.getElementById('ratingValue').textContent = '0/5';
+
+    // Reset stars
+    document.querySelectorAll('.star').forEach(star => {
+        star.classList.remove('selected');
+    });
+
+    // Hide messages
+    document.getElementById('reviewError').style.display = 'none';
+    document.getElementById('reviewSuccess').style.display = 'none';
+
+    // Show modal
+    const modal = document.getElementById('reviewModal');
+    modal.classList.add('show');
+    modal.style.display = 'flex';
+}
+
+window.closeReviewModal = function() {
+    const modal = document.getElementById('reviewModal');
+    modal.classList.remove('show');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+
+    currentReservationId = null;
+    selectedRating = 0;
+}
+
+// Star rating functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.star');
+    const ratingValue = document.getElementById('ratingValue');
+    const commentTextarea = document.getElementById('reviewComment');
+    const charCount = document.getElementById('charCount');
+
+    // Star hover effect
+    stars.forEach(star => {
+        star.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            highlightStars(rating, true);
+        });
+
+        star.addEventListener('click', function() {
+            selectedRating = parseInt(this.getAttribute('data-rating'));
+            selectStars(selectedRating);
+            if (ratingValue) {
+                ratingValue.textContent = `${selectedRating}/5`;
+            }
+        });
+    });
+
+    // Reset stars on mouse leave
+    const starRating = document.getElementById('starRating');
+    if (starRating) {
+        starRating.addEventListener('mouseleave', function() {
+            selectStars(selectedRating);
+        });
+    }
+
+    // Character count for comment
+    if (commentTextarea && charCount) {
+        commentTextarea.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+    }
+
+    // Close modal on outside click
+    const modal = document.getElementById('reviewModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeReviewModal();
+            }
+        });
+    }
+});
+
+function highlightStars(rating, hover = false) {
+    const stars = document.querySelectorAll('.star');
+    stars.forEach(star => {
+        const starRating = parseInt(star.getAttribute('data-rating'));
+        if (starRating <= rating) {
+            if (hover) {
+                star.classList.add('hovered');
+            }
+        } else {
+            if (hover) {
+                star.classList.remove('hovered');
+            }
+        }
+    });
+}
+
+function selectStars(rating) {
+    const stars = document.querySelectorAll('.star');
+    stars.forEach(star => {
+        const starRating = parseInt(star.getAttribute('data-rating'));
+        star.classList.remove('hovered');
+        if (starRating <= rating) {
+            star.classList.add('selected');
+        } else {
+            star.classList.remove('selected');
+        }
+    });
+}
+
+window.submitReview = async function() {
+    const errorDiv = document.getElementById('reviewError');
+    const successDiv = document.getElementById('reviewSuccess');
+    const submitBtn = document.getElementById('submitReviewBtn');
+
+    // Hide previous messages
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+
+    // Validate rating
+    if (selectedRating === 0) {
+        errorDiv.textContent = 'Veuillez sélectionner une note.';
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    // Get comment
+    const comment = document.getElementById('reviewComment').value.trim();
+
+    // Disable submit button
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Envoi en cours...';
+
+    try {
+        const response = await fetchWithAuth('/reviews/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                reservation_id: currentReservationId,
+                rating: selectedRating,
+                comment: comment || null
+            })
+        });
+
+        if (response.ok) {
+            successDiv.textContent = 'Votre avis a été enregistré avec succès !';
+            successDiv.style.display = 'block';
+
+            // Close modal after 2 seconds and reload reservations
+            setTimeout(() => {
+                closeReviewModal();
+                if (document.getElementById('reservations-container')) {
+                    loadMyReservations('reservations-container');
+                }
+            }, 2000);
+        } else {
+            const error = await response.json();
+            errorDiv.textContent = error.detail || 'Une erreur est survenue.';
+            errorDiv.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Envoyer l\'avis';
+        }
+    } catch (e) {
+        console.error(e);
+        errorDiv.textContent = 'Erreur de connexion au serveur.';
+        errorDiv.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Envoyer l\'avis';
+    }
+}
+
+// ============================================
+// USER INFO MODAL
+// ============================================
+
+window.showUserInfo = async function(userId) {
+    const modal = document.getElementById('userInfoModal');
+    const content = document.getElementById('userInfoContent');
+
+    // Show modal with loading state
+    content.innerHTML = '<div class="loading-spinner">Chargement...</div>';
+    modal.classList.add('show');
+
+    try {
+        const response = await fetch(`/users/${userId}/info`);
+
+        if (!response.ok) {
+            throw new Error('Utilisateur non trouvé');
+        }
+
+        const user = await response.json();
+
+        // Render user info
+        const initial = user.name.charAt(0).toUpperCase();
+        const fullName = `${user.name} ${user.surname}`;
+
+        // Rating display
+        let ratingHtml = '';
+        if (user.average_rating && user.review_count > 0) {
+            const fullStars = Math.floor(user.average_rating);
+            const hasHalfStar = user.average_rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+            const starsHtml =
+                '★'.repeat(fullStars) +
+                (hasHalfStar ? '⯨' : '') +
+                '☆'.repeat(emptyStars);
+
+            ratingHtml = `
+                <div class="user-rating-display">
+                    <div class="rating-stars" style="color: #F59E0B;">${starsHtml}</div>
+                    <div class="rating-stats">
+                        ${user.average_rating.toFixed(1)}/5
+                        <span class="rating-count">(${user.review_count} avis)</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            ratingHtml = `
+                <div class="no-rating-message">
+                    Aucun avis pour le moment
+                </div>
+            `;
+        }
+
+        content.innerHTML = `
+            <div class="user-info-card">
+                <div class="user-info-header">
+                    <div class="user-avatar-large">${initial}</div>
+                    <div class="user-info-name">${fullName}</div>
+                    <div class="user-info-role">${user.role === 'admin' ? 'Administrateur' : 'Utilisateur'}</div>
+                    ${ratingHtml}
+                </div>
+                <div class="user-info-details">
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">${user.email}</span>
+                    </div>
+                    ${user.phone_number ? `
+                        <div class="info-row">
+                            <span class="info-label">Téléphone:</span>
+                            <span class="info-value">${user.phone_number}</span>
+                        </div>
+                    ` : ''}
+                    ${user.address ? `
+                        <div class="info-row">
+                            <span class="info-label">Adresse:</span>
+                            <span class="info-value">${user.address}</span>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+
+    } catch (error) {
+        console.error('Error fetching user info:', error);
+        content.innerHTML = `
+            <div class="error-message">
+                Impossible de charger les informations de l'utilisateur.
+            </div>
+        `;
+    }
+}
+
+window.closeUserInfoModal = function() {
+    const modal = document.getElementById('userInfoModal');
+    modal.classList.remove('show');
+}
+
+// Close modal on outside click
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('userInfoModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeUserInfoModal();
+            }
+        });
+    }
+});
 
 // Initialisation globale
 window.loadRides = loadRides;

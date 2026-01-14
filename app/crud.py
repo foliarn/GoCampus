@@ -11,6 +11,9 @@ from datetime import date, datetime, timedelta
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
+def get_user_by_id(db: Session, user_id: int):
+    return db.query(models.User).filter(models.User.user_id == user_id).first()
+
 def get_password_hash(password: str) -> str:
     from app.utils import get_password_hash as hash_pwd
     return hash_pwd(password)
@@ -34,7 +37,7 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
-def update_user(db: Session, user_id: int, user_update: schemas.UserCreate):
+def update_user(db: Session, user_id: int, user_update: schemas.UserUpdate):
     """Met à jour les informations d'un utilisateur"""
     db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
     
@@ -145,18 +148,25 @@ def create_ride(
     return db_ride
 
 def get_rides(
-    db: Session, 
-    skip: int = 0, 
-    limit: int = 100, 
-    departure_address: Optional[str] = None, 
-    arrival_address: Optional[str] = None, 
+    db: Session,
+    skip: int = 0,
+    limit: int = 100,
+    departure_address: Optional[str] = None,
+    arrival_address: Optional[str] = None,
     departure_date: Optional[date] = None,
     from_iut: Optional[bool] = None
 ) -> List[models.Ride]:
     """
     Récupère les trajets actifs avec filtres optionnels.
+    Exclut automatiquement les trajets dont la date de départ est passée.
     """
-    query = db.query(models.Ride).filter(models.Ride.status == 'active')
+    query = db.query(models.Ride)\
+        .options(joinedload(models.Ride.driver))\
+        .filter(models.Ride.status == 'active')
+
+    # Filter out past rides
+    now = datetime.now()
+    query = query.filter(models.Ride.departure >= now)
     
     # Filtre par direction
     if from_iut is not None:
@@ -195,7 +205,8 @@ def search_rides_by_proximity(
 ) -> List[dict]:
     """
     Recherche des trajets par proximité géographique.
-    
+    Exclut automatiquement les trajets dont la date de départ est passée.
+
     Args:
         search_lat, search_lng: Coordonnées du point de recherche
         from_iut: Direction souhaitée (None = les deux)
@@ -203,11 +214,15 @@ def search_rides_by_proximity(
         search_time: Heure souhaitée (une plage ±time_window_minutes sera appliquée)
         radius_km: Rayon de recherche en km
         time_window_minutes: Tolérance horaire en minutes
-        
+
     Returns:
         Liste de dicts avec le trajet et la distance depuis le point de recherche
     """
     query = db.query(models.Ride).filter(models.Ride.status == 'active')
+
+    # Filter out past rides
+    now = datetime.now()
+    query = query.filter(models.Ride.departure >= now)
     
     # Filtre par direction
     if from_iut is not None:
@@ -416,3 +431,82 @@ def delete_reservation_force(db: Session, reservation_id: int):
         db.delete(reservation)
         db.commit()
     return reservation
+
+# === REVIEW ===
+
+def create_review(db: Session, review: schemas.ReviewCreate, reviewer_id: int):
+    """
+    Crée un avis pour un conducteur après un trajet.
+    Vérifie que la réservation existe, est confirmée, et que le trajet est passé.
+    """
+    # Récupérer la réservation avec les infos du trajet
+    reservation = db.query(models.Reservation)\
+        .options(joinedload(models.Reservation.ride))\
+        .filter(models.Reservation.reservation_id == review.reservation_id)\
+        .first()
+
+    if not reservation:
+        return None  # Réservation introuvable
+
+    # Vérifier que l'utilisateur est bien le passager
+    if reservation.passenger_id != reviewer_id:
+        return None  # Pas autorisé
+
+    # Vérifier que la réservation est confirmée
+    if reservation.status != 'confirmed':
+        return None  # Seulement les réservations confirmées peuvent être notées
+
+    # Vérifier que le trajet est passé
+    if reservation.ride.departure >= datetime.now():
+        return None  # Le trajet n'est pas encore passé
+
+    # Vérifier qu'un avis n'existe pas déjà
+    existing_review = db.query(models.Review)\
+        .filter(models.Review.reservation_id == review.reservation_id)\
+        .first()
+
+    if existing_review:
+        return None  # Un avis existe déjà pour cette réservation
+
+    # Créer l'avis
+    db_review = models.Review(
+        reservation_id=review.reservation_id,
+        reviewer_id=reviewer_id,
+        driver_id=reservation.ride.driver_id,
+        rating=review.rating,
+        comment=review.comment,
+        created_at=datetime.now()
+    )
+
+    db.add(db_review)
+    db.commit()
+    db.refresh(db_review)
+    return db_review
+
+def get_reviews_for_driver(db: Session, driver_id: int, skip: int = 0, limit: int = 100):
+    """Récupère tous les avis pour un conducteur donné"""
+    return db.query(models.Review)\
+        .options(joinedload(models.Review.reviewer))\
+        .filter(models.Review.driver_id == driver_id)\
+        .order_by(models.Review.created_at.desc())\
+        .offset(skip).limit(limit).all()
+
+def get_review_by_reservation(db: Session, reservation_id: int):
+    """Vérifie si un avis existe déjà pour une réservation donnée"""
+    return db.query(models.Review)\
+        .filter(models.Review.reservation_id == reservation_id)\
+        .first()
+
+def calculate_driver_average_rating(db: Session, driver_id: int) -> Optional[float]:
+    """Calcule la note moyenne d'un conducteur"""
+    result = db.query(func.avg(models.Review.rating))\
+        .filter(models.Review.driver_id == driver_id)\
+        .scalar()
+
+    return round(result, 2) if result else None
+
+def get_driver_review_count(db: Session, driver_id: int) -> int:
+    """Compte le nombre d'avis reçus par un conducteur"""
+    return db.query(models.Review)\
+        .filter(models.Review.driver_id == driver_id)\
+        .count()
