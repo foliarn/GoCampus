@@ -178,7 +178,7 @@ if (registerForm) {
             });
             
             if (response.ok) {
-                alert('Inscription réussie !');
+                await showPopup('Votre compte a été créé avec succès !', { type: 'success', title: 'Inscription réussie' });
                 window.location.href = '/connexion';
             } else {
                 const error = await response.json();
@@ -230,36 +230,78 @@ if (loginForm) {
 // INITIALISATION
 // ============================================
 
-// Initialiser le menu déroulant
+// Initialiser le menu déroulant et hamburger
 document.addEventListener('DOMContentLoaded', function() {
     const userMenuToggle = document.getElementById('userMenuToggle');
     const userMenu = document.getElementById('userMenu');
     const logoutBtn = document.getElementById('logoutBtn');
-    
-    // Toggle du menu au clic
+
+    // === HAMBURGER MENU ===
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const navLinks = document.getElementById('navLinks');
+    const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+
+    function toggleMobileMenu() {
+        hamburgerBtn.classList.toggle('active');
+        navLinks.classList.toggle('active');
+        mobileMenuOverlay.classList.toggle('active');
+        document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+    }
+
+    function closeMobileMenu() {
+        hamburgerBtn.classList.remove('active');
+        navLinks.classList.remove('active');
+        mobileMenuOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', toggleMobileMenu);
+    }
+
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+    }
+
+    // Close mobile menu when clicking a nav link
+    if (navLinks) {
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
+    }
+
+    // Close mobile menu on window resize (if switching to desktop)
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 900) {
+            closeMobileMenu();
+        }
+    });
+
+    // === USER DROPDOWN MENU ===
     if (userMenuToggle && userMenu) {
         userMenuToggle.addEventListener('click', function(e) {
             e.stopPropagation();
             userMenu.classList.toggle('active');
         });
-        
-        // Fermer le menu si on clique ailleurs
+
+        // Fermer le menu si on clique ailleurs (desktop only)
         document.addEventListener('click', function(e) {
-            if (!userMenu.contains(e.target)) {
+            if (!userMenu.contains(e.target) && window.innerWidth > 900) {
                 userMenu.classList.remove('active');
             }
         });
     }
-    
+
     // Gestion de la déconnexion
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function(e) {
             e.preventDefault();
             removeToken();
+            closeMobileMenu();
             window.location.href = '/';
         });
     }
-    
+
     checkPageAccess();
     updateUI();
 });

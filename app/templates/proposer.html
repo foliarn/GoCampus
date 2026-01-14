@@ -1,42 +1,12 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>GoCampus - Proposer un trajet</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/common.css">
-    <link rel="stylesheet" href="/static/css/proposer.css">
-</head>
-<body>
+{% extends "base.html" %}
 
-    <nav class="navbar">
-        <a href="/" class="logo">
-            <img src="/static/images/logo.svg" alt="Logo GoCampus">
-            GoCampus
-        </a>
-        <ul class="nav-links">
-            <li><a href="/">Accueil</a></li>
-            <li><a href="/rechercher">Rechercher</a></li>
-            <li><a href="/proposer" class="active">Proposer un trajet</a></li>
-            <li><a href="/reservations">Mes réservations</a></li>
-            <li><a href="/annonces">Mes annonces</a></li>
-            <li class="user-menu" id="userMenu" style="display: none;">
-                <button class="user-menu-toggle" id="userMenuToggle">
-                    <span id="userName">Utilisateur</span>
-                </button>
-                <div class="user-dropdown">
-                    <a href="/profil">Votre profil</a>
-                    <a href="/admin/dashboard" class="admin-link" id="adminLink" style="display: none;">Administration</a>
-                    <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
-                </div>
-            </li>
-            
-            <!-- Lien connexion (visible uniquement si non connecté) -->
-            <li id="loginLink"><a href="/connexion">Connexion</a></li>
-        </ul>
-    </nav>
+{% block title %}GoCampus - Proposer un trajet{% endblock %}
 
+{% block styles %}
+<link rel="stylesheet" href="/static/css/proposer.css">
+{% endblock %}
+
+{% block content %}
     <main class="trajet-page">
         <div class="trajet-card">
             <div class="trajet-card-header">
@@ -45,8 +15,8 @@
             </div>
 
             <div class="trajet-card-body">
-                <div id="apiError" class="api-error">⚠️ Erreur de configuration Google Maps.</div>
-                
+                <div id="apiError" class="api-error">Erreur de configuration Google Maps.</div>
+
                 <div class="direction-toggle">
                     <button type="button" id="toIutBtn" class="active" onclick="setDirection(false)">Aller à l'IUT</button>
                     <button type="button" id="fromIutBtn" onclick="setDirection(true)">Partir de l'IUT</button>
@@ -58,14 +28,13 @@
                         <div class="autocomplete-container" id="autocompleteContainerFrom"></div>
                         <div id="selectedAddressDisplay" class="selected-address-confirmation"></div>
                     </div>
-                    
+
                     <div class="direction-indicator">
-                        <!-- Styles inline forcés pour la taille -->
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:24px; height:24px; display:block;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                         </svg>
                     </div>
-                    
+
                     <div class="address-section" id="arrivalSection">
                         <label id="arrivalLabel">Point d'arrivée (IUT Amiens)</label>
                         <input type="text" class="iut-address" value="IUT Amiens - Avenue des Facultés" disabled>
@@ -75,7 +44,7 @@
                     <input type="hidden" id="addressFormatted"><input type="hidden" id="fromIut" value="false">
 
                     <div id="routeInfo" class="route-info">
-                        <p>🚗 <strong id="routeDistance">--</strong> | ⏱️ <strong id="routeDuration">--</strong></p>
+                        <p><strong id="routeDistance">--</strong> | <strong id="routeDuration">--</strong></p>
                     </div>
 
                     <div class="form-grid">
@@ -109,7 +78,6 @@
 
                     <div class="add-vehicle-section">
                         <a href="#" id="addVehicleLink" class="btn-add-vehicle">
-                            <!-- Styles inline forcés pour la taille -->
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px; height:18px; display:inline-block;">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
@@ -143,52 +111,23 @@
             </form>
         </div>
     </div>
+{% endblock %}
 
-        <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h4>GoCampus</h4>
-                    <p style="opacity: 0.8; line-height: 1.6;">
-                        Service de covoiturage pour les étudiants de l'Université de Picardie Jules Verne.
-                    </p>
-                </div>
-                <div class="footer-col">
-                    <h4>Contact</h4>
-                    <ul>
-                        <li><img src="/static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
-                        <li><img src="/static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>A propos</h4>
-                    <p style="opacity: 0.8; line-height: 1.6;">Un service créé par et pour les étudiants pour faciliter les déplacements.</p>
-                </div>
-            </div>
-            <div class="copyright">
-                &copy; 2025 GoCampus. Tous droits réservés.
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        async function loadGoogleMapsAPI() {
-            try {
-                const response = await fetch('/api/config/maps');
-                const config = await response.json();
-                if (config.api_key) {
-                    const script = document.createElement('script');
-                    // Ajout de v=weekly pour assurer la version supportant Web Components
-                    script.src = `https://maps.googleapis.com/maps/api/js?key=${config.api_key}&loading=async&v=weekly&callback=initAutocomplete`;
-                    script.async = true; script.defer = true;
-                    document.head.appendChild(script);
-                }
-            } catch (error) { console.error('Maps Config Error:', error); }
-        }
-        loadGoogleMapsAPI();
-    </script>
-    <script src="/static/js/auth.js"></script>
-    <script src="/static/js/proposer.js"></script>
-</body>
-</html>
+{% block scripts %}
+<script>
+    async function loadGoogleMapsAPI() {
+        try {
+            const response = await fetch('/api/config/maps');
+            const config = await response.json();
+            if (config.api_key) {
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${config.api_key}&loading=async&v=weekly&callback=initAutocomplete`;
+                script.async = true; script.defer = true;
+                document.head.appendChild(script);
+            }
+        } catch (error) { console.error('Maps Config Error:', error); }
+    }
+    loadGoogleMapsAPI();
+</script>
+<script src="/static/js/proposer.js"></script>
+{% endblock %}

@@ -1,43 +1,12 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoCampus</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/common.css">
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
+{% extends "base.html" %}
 
-    <!-- Header -->
-    <nav class="navbar">
-        <a href="/" class="logo">
-            <img src="/static/images/logo.svg" alt="GoCampus">
-            GoCampus
-        </a>
-        <ul class="nav-links">
-            <li><a href="/" class="active">Accueil</a></li>
-            <li><a href="/rechercher">Rechercher</a></li>
-            <li><a href="/proposer">Proposer un trajet</a></li>
-            <li><a href="/reservations">Mes réservations</a></li>
-            <li><a href="/annonces">Mes annonces</a></li>
-            <li class="user-menu" id="userMenu" style="display: none;">
-                <button class="user-menu-toggle" id="userMenuToggle">
-                    <span id="userName">Utilisateur</span>
-                </button>
-                <div class="user-dropdown">
-                    <a href="/profil">Votre profil</a>
-                    <a href="/admin/dashboard" class="admin-link" id="adminLink" style="display: none;">Administration</a>
-                    <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
-                </div>
-            </li>
-            
-            <!-- Lien connexion (visible uniquement si non connecté) -->
-            <li id="loginLink"><a href="/connexion">Connexion</a></li>
-        </ul>
-    </nav>
+{% block title %}GoCampus{% endblock %}
 
+{% block styles %}
+<link rel="stylesheet" href="/static/css/style.css">
+{% endblock %}
+
+{% block content %}
     <!-- Titre -->
     <header class="hero">
         <div class="container">
@@ -49,14 +18,14 @@
     <!-- Barre de Recherche -->
     <div class="cta-action-container">
         <a href="/rechercher" class="btn-main-action">
-            <img src="/static/images/icon-search.svg" alt="" class="icon-img" style="filter: brightness(0) invert(0);"> 
+            <img src="/static/images/icon-search.svg" alt="" class="icon-img" style="filter: brightness(0) invert(0);">
             Trouver un trajet
         </a>
     </div>
 
     <!-- Contenu Principal -->
     <main class="container">
-        
+
         <!-- Avantages -->
         <section class="features-section">
             <h2 style="margin-bottom: 30px;">Pourquoi utiliser GoCampus ?</h2>
@@ -119,36 +88,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h4>GoCampus</h4>
-                    <p style="opacity: 0.8; line-height: 1.6;">
-                        Service de covoiturage pour les étudiants de l'Université de Picardie Jules Verne.
-                    </p>
-                </div>
-                <div class="footer-col">
-                    <h4>Contact</h4>
-                    <ul>
-                        <li><img src="/static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
-                        <li><img src="/static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>A propos</h4>
-                    <p style="opacity: 0.8; line-height: 1.6;">Un service créé par et pour les étudiants pour faciliter les déplacements.</p>
-                </div>
-            </div>
-            <div class="copyright">
-                &copy; 2025 GoCampus. Tous droits réservés.
-            </div>
-        </div>
-    </footer>
-
-    <script src="/static/js/auth.js"></script>
-    <script src="/static/js/rides.js"></script>
-</body>
-</html>
+{% block scripts %}
+<script src="/static/js/rides.js"></script>
+{% endblock %}

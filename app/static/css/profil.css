@@ -357,25 +357,153 @@
     color: #B91C1C;
 }
 
-/* --- RESPONSIVE --- */
-@media (max-width: 768px) {
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
     .page-title {
-        margin: 30px 20px 20px 20px;
+        margin: 25px 20px 15px 20px;
     }
-    
+
+    .page-title h1 {
+        font-size: 1.6rem;
+    }
+
     .profil-container {
         padding: 0 20px;
+        margin-bottom: 40px;
     }
-    
+
+    .section-header {
+        padding: 15px 20px;
+    }
+
+    .section-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .section-body {
+        padding: 20px;
+    }
+
     .info-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .form-grid {
         grid-template-columns: 1fr;
     }
 
     .vehicles-list {
         grid-template-columns: 1fr;
+    }
+
+    .modal-box {
+        padding: 25px;
+    }
+}
+
+@media (max-width: 600px) {
+    .page-title {
+        margin: 20px 15px 15px 15px;
+    }
+
+    .page-title h1 {
+        font-size: 1.4rem;
+    }
+
+    .profil-container {
+        padding: 0 15px;
+        margin-bottom: 30px;
+    }
+
+    .profil-section {
+        border-radius: 16px;
+    }
+
+    .section-header {
+        padding: 15px;
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .section-header h2 {
+        font-size: 1rem;
+    }
+
+    .section-body {
+        padding: 15px;
+    }
+
+    .info-item {
+        gap: 6px;
+    }
+
+    .info-label {
+        font-size: 0.8rem;
+    }
+
+    .info-value {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+    }
+
+    .btn-edit, .btn-save, .btn-cancel {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+
+    .vehicle-card {
+        padding: 15px;
+    }
+
+    .vehicle-header {
+        margin-bottom: 12px;
+    }
+
+    .vehicle-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+
+    .vehicle-name {
+        font-size: 1rem;
+    }
+
+    .vehicle-detail {
+        font-size: 0.85rem;
+    }
+
+    .btn-add-vehicle {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    .modal-box {
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .modal-box h2 {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        font-size: 0.8rem;
+    }
+
+    .form-input, .vehicle-select {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .empty-state {
+        padding: 30px 15px;
     }
 }

@@ -326,7 +326,128 @@
     letter-spacing: 0.5px;
 }
 
-@media (max-width: 768px) {
-    .input-group { border-right: none; border-bottom: 1px solid #eee; width: 100%; }
-    .btn-search { width: 100%; margin: 10px 0 0; justify-content: center; }
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+    .hero {
+        padding: 40px 20px 80px;
+    }
+
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .cta-action-container {
+        margin: -25px auto 40px;
+    }
+
+    .btn-main-action {
+        padding: 14px 30px;
+        font-size: 1rem;
+    }
+
+    .features-grid {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .feature-box {
+        padding: 20px;
+    }
+
+    .cta-box {
+        padding: 30px 20px;
+        margin-bottom: 40px;
+    }
+
+    .cta-box h2 {
+        font-size: 1.5rem;
+    }
+
+    .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .ride-info {
+        gap: 20px;
+    }
+
+    .listings-section {
+        margin-bottom: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        padding: 30px 15px 60px;
+    }
+
+    .hero h1 {
+        font-size: 1.5rem;
+    }
+
+    .cta-action-container {
+        margin: -20px auto 30px;
+    }
+
+    .btn-main-action {
+        padding: 12px 24px;
+        font-size: 0.95rem;
+        gap: 8px;
+    }
+
+    .rond-bleu {
+        width: 55px;
+        height: 55px;
+    }
+
+    .feature-box h3 {
+        font-size: 1rem;
+    }
+
+    .cta-box {
+        padding: 25px 15px;
+        border-radius: 12px;
+    }
+
+    .cta-box h2 {
+        font-size: 1.3rem;
+    }
+
+    .btn-register {
+        padding: 10px 24px;
+        font-size: 0.95rem;
+    }
+
+    .ride-card-header {
+        padding: 12px 15px;
+    }
+
+    .ride-card-header .price {
+        font-size: 1.3rem;
+    }
+
+    .ride-card-body {
+        padding: 15px;
+    }
+
+    .ride-info {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .trip-time {
+        font-size: 1.5rem;
+    }
+
+    .price-badge {
+        top: 15px;
+        right: 15px;
+        padding: 5px 12px;
+        font-size: 0.85rem;
+    }
 }

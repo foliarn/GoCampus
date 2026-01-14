@@ -259,8 +259,15 @@ function capitalize(s) {
 // ============================================
 
 window.handleReservationAction = async function(reservationId, action) {
-    // Petit délai UX pour que l'utilisateur voit qu'il a cliqué
-    if(!confirm(action === 'confirm' ? "Accepter ce passager ?" : "Refuser ce passager ?")) return;
+    const message = action === 'confirm' ? "Accepter ce passager ?" : "Refuser ce passager ?";
+    const confirmed = await showConfirm(message, {
+        title: action === 'confirm' ? 'Accepter' : 'Refuser',
+        type: 'info',
+        confirmText: 'Oui',
+        cancelText: 'Non'
+    });
+
+    if(!confirmed) return;
 
     try {
         const response = await fetchWithAuth(`/reservations/${reservationId}/${action}`, {
@@ -272,16 +279,24 @@ window.handleReservationAction = async function(reservationId, action) {
             loadMyRides('annonces-container');
         } else {
             const err = await response.json();
-            alert("Erreur: " + err.detail);
+            await showPopup(err.detail || "Une erreur est survenue", { type: 'error' });
         }
     } catch(e) {
         console.error(e);
-        alert("Erreur réseau");
+        await showPopup("Erreur de connexion au serveur", { type: 'error' });
     }
 };
 
 window.deleteRide = async function(rideId) {
-    if(!confirm("Voulez-vous vraiment supprimer ce trajet ? Cette action annulera toutes les réservations.")) return;
+    const confirmed = await showConfirm("Voulez-vous vraiment supprimer ce trajet ? Cette action annulera toutes les réservations.", {
+        title: 'Supprimer le trajet',
+        type: 'warning',
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        danger: true
+    });
+
+    if(!confirmed) return;
 
     try {
         const response = await fetchWithAuth(`/rides/${rideId}`, {
@@ -291,10 +306,10 @@ window.deleteRide = async function(rideId) {
         if(response.ok || response.status === 204) {
             loadMyRides('annonces-container');
         } else {
-            alert("Impossible de supprimer le trajet.");
+            await showPopup("Impossible de supprimer le trajet.", { type: 'error' });
         }
     } catch(e) {
-        alert("Erreur réseau");
+        await showPopup("Erreur de connexion au serveur", { type: 'error' });
     }
 };
 
@@ -388,7 +403,15 @@ async function checkReviewExists(reservationId) {
 }
 
 window.cancelMyReservation = async function(id) {
-    if(confirm("Annuler ?")) {
+    const confirmed = await showConfirm("Voulez-vous annuler cette réservation ?", {
+        title: 'Annuler la réservation',
+        type: 'warning',
+        confirmText: 'Oui, annuler',
+        cancelText: 'Non',
+        danger: true
+    });
+
+    if(confirmed) {
         await fetchWithAuth(`/reservations/${id}/cancel`, {method:'POST'});
         loadMyReservations('reservations-container');
     }

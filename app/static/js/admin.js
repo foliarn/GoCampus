@@ -3,15 +3,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         const user = await fetchWithAuth('/users/me').then(res => res.json());
         if(user.role !== 'admin') {
-            alert("Accès interdit.");
+            await showPopup("Accès interdit.", { type: 'error', title: 'Accès refusé' });
             window.location.href = '/';
             return;
         }
         document.getElementById('adminName').textContent = `Connecté en tant que : ${user.name} ${user.surname}`;
-        
+
         // 2. Charger les utilisateurs par défaut
         loadUsers();
-        
+
     } catch(e) {
         window.location.href = '/connexion';
     }
@@ -103,8 +103,16 @@ async function loadReservations() {
 
 // === GENERIC DELETE ===
 async function deleteItem(type, id) {
-    if(!confirm("Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.")) return;
-    
+    const confirmed = await showConfirm("Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.", {
+        title: 'Confirmer la suppression',
+        type: 'warning',
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        danger: true
+    });
+
+    if(!confirmed) return;
+
     try {
         const res = await fetchWithAuth(`/admin/${type}/${id}`, { method: 'DELETE' });
         if(res.ok) {
@@ -112,7 +120,10 @@ async function deleteItem(type, id) {
             if(type === 'rides') loadRides();
             if(type === 'reservations') loadReservations();
         } else {
-            alert("Erreur lors de la suppression");
+            await showPopup("Erreur lors de la suppression", { type: 'error' });
         }
-    } catch(e) { console.error(e); alert("Erreur réseau"); }
+    } catch(e) {
+        console.error(e);
+        await showPopup("Erreur de connexion au serveur", { type: 'error' });
+    }
 }

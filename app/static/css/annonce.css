@@ -1,6 +1,7 @@
 /* --- PAGE TITLE --- */
 .page-title {
     margin: 30px 40px 20px 40px;
+    text-align: center;
 }
 
 .page-title h1 {
@@ -21,6 +22,8 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 25px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* --- CSS CARTE ANNONCE --- */
@@ -198,7 +201,60 @@
 }
 
 
-@media (max-width: 768px) {
-    .annonces-container { grid-template-columns: 1fr; padding: 0 20px 40px; }
-    .page-title { margin: 30px 20px 20px 20px; }
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+    .page-title {
+        margin: 25px 20px 15px 20px;
+    }
+
+    .page-title h1 {
+        font-size: 1.6rem;
+    }
+
+    .annonces-container {
+        padding: 0 20px 40px;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    .annonces-container {
+        grid-template-columns: 1fr;
+        padding: 0 15px 30px;
+    }
+
+    .page-title {
+        margin: 20px 15px 15px 15px;
+    }
+
+    .page-title h1 {
+        font-size: 1.4rem;
+    }
+
+    .annonce-header {
+        padding: 15px;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .annonce-info {
+        padding: 15px;
+    }
+
+    .request-row {
+        padding: 10px 15px;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .annonce-footer {
+        padding: 12px;
+    }
 }

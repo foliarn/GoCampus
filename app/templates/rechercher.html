@@ -1,43 +1,12 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoCampus - Rechercher</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/common.css">
-    <link rel="stylesheet" href="/static/css/rechercher.css">
-</head>
-<body>
+{% extends "base.html" %}
 
-    <!-- Header -->
-    <nav class="navbar">
-        <a href="/" class="logo">
-            <img src="/static/images/logo.svg" alt="Logo GoCampus">
-            GoCampus
-        </a>
-        <ul class="nav-links">
-            <li><a href="/">Accueil</a></li>
-            <li><a href="/rechercher" class="active">Rechercher</a></li>
-            <li><a href="/proposer">Proposer un trajet</a></li>
-            <li><a href="/reservations">Mes réservations</a></li>
-            <li><a href="/annonces">Mes annonces</a></li>
-            <li class="user-menu" id="userMenu" style="display: none;">
-                <button class="user-menu-toggle" id="userMenuToggle">
-                    <span id="userName">Utilisateur</span>
-                </button>
-                <div class="user-dropdown">
-                    <a href="/profil">Votre profil</a>
-                    <a href="/admin/dashboard" class="admin-link" id="adminLink" style="display: none;">Administration</a>
-                    <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
-                </div>
-            </li>
-            
-            <!-- Lien connexion (visible uniquement si non connecté) -->
-            <li id="loginLink"><a href="/connexion">Connexion</a></li>
-        </ul>
-    </nav>
+{% block title %}GoCampus - Rechercher{% endblock %}
 
+{% block styles %}
+<link rel="stylesheet" href="/static/css/rechercher.css">
+{% endblock %}
+
+{% block content %}
     <!-- Hero Search -->
     <header class="hero-search">
         <h1>Trouvez votre covoiturage</h1>
@@ -46,12 +15,12 @@
 
     <!-- Main Content -->
     <div class="main-container">
-        
+
         <!-- Formulaire de recherche -->
         <div class="search-card">
-            
+
             <div id="apiError" class="api-error" style="display: none;"></div>
-            
+
             <!-- Toggle direction -->
             <div class="direction-toggle">
                 <button type="button" id="toIutBtn" class="active" onclick="setSearchDirection(false)">
@@ -61,10 +30,10 @@
                     Partir de l'IUT
                 </button>
             </div>
-            
+
             <form id="searchForm">
                 <div class="search-form-grid">
-                    
+
                     <!-- Adresse -->
                     <div class="form-group">
                         <label class="form-label" id="addressLabel">Mon adresse de départ</label>
@@ -76,33 +45,33 @@
 
                     <!-- Date -->
                     <div class="form-group">
-                        <label class="form-label">Date</label>      
+                        <label class="form-label">Date</label>
                         <div class="input-wrapper">
-                            <input type="date" id="searchDate" required> 
+                            <input type="date" id="searchDate" required>
                         </div>
                     </div>
-                    
+
                     <!-- Heure -->
                     <div class="form-group">
-                        <label class="form-label">Heure souhaitée</label>      
+                        <label class="form-label">Heure souhaitée</label>
                         <div class="input-wrapper">
-                            <input type="time" id="searchTime" required> 
+                            <input type="time" id="searchTime" required>
                         </div>
                     </div>
 
                     <!-- Bouton Rechercher -->
                     <button type="submit" class="btn-search-large">
-                        🔍 Rechercher
+                        Rechercher
                     </button>
                 </div>
-                
+
                 <!-- Champs cachés -->
                 <input type="hidden" id="searchLat">
                 <input type="hidden" id="searchLng">
                 <input type="hidden" id="searchAddressFormatted">
                 <input type="hidden" id="searchFromIut" value="false">
             </form>
-            
+
             <div id="searchInfo" class="search-info">
                 Recherche autour de <strong id="timeRange">--</strong> (Rayon 5km)
             </div>
@@ -111,7 +80,7 @@
         <!-- Zone de résultats -->
         <div id="resultsArea">
             <div class="no-results">
-                <h3>🚗 Prêt à partir ?</h3>
+                <h3>Prêt à partir ?</h3>
                 <p>Remplissez le formulaire ci-dessus pour voir les trajets disponibles.</p>
             </div>
         </div>
@@ -129,57 +98,26 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h4>GoCampus</h4>
-                    <p style="opacity: 0.8; line-height: 1.6;">
-                        Service de covoiturage pour les étudiants de l'Université de Picardie Jules Verne.
-                    </p>
-                </div>
-                <div class="footer-col">
-                    <h4>Contact</h4>
-                    <ul>
-                        <li><img src="/static/images/icon-mail-gris.svg" class="icon-img" alt="Mail"> contact@gocampus.fr</li>
-                        <li><img src="/static/images/icon-map-gris.svg" class="icon-img" alt="Map"> Amiens, France</li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>A propos</h4>
-                    <p style="opacity: 0.8; line-height: 1.6;">Un service créé par et pour les étudiants pour faciliter les déplacements.</p>
-                </div>
-            </div>
-            <div class="copyright">
-                &copy; 2025 GoCampus. Tous droits réservés.
-            </div>
-        </div>
-    </footer>
-    
-    <script src="/static/js/auth.js"></script>
-    <script src="/static/js/rechercher.js"></script>
-    
-    <!-- Script Maps (chargé à la fin) -->
-    <script>
-        async function loadGoogleMapsAPI() {
-            try {
-                const response = await fetch('/api/config/maps');
-                const config = await response.json();
-                if (config.api_key) {
-                    const script = document.createElement('script');
-                    // v=weekly est important pour les Web Components
-                    script.src = `https://maps.googleapis.com/maps/api/js?key=${config.api_key}&loading=async&v=weekly&callback=initSearchAutocomplete`;
-                    script.async = true; script.defer = true;
-                    document.head.appendChild(script);
-                } else {
-                    document.getElementById('apiError').textContent = "Clé API manquante";
-                    document.getElementById('apiError').style.display = 'block';
-                }
-            } catch (error) { console.error('Maps Config Error:', error); }
-        }
-        loadGoogleMapsAPI();
-    </script>
-</body>
-</html>
+{% block scripts %}
+<script src="/static/js/rechercher.js"></script>
+<script>
+    async function loadGoogleMapsAPI() {
+        try {
+            const response = await fetch('/api/config/maps');
+            const config = await response.json();
+            if (config.api_key) {
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${config.api_key}&loading=async&v=weekly&callback=initSearchAutocomplete`;
+                script.async = true; script.defer = true;
+                document.head.appendChild(script);
+            } else {
+                document.getElementById('apiError').textContent = "Clé API manquante";
+                document.getElementById('apiError').style.display = 'block';
+            }
+        } catch (error) { console.error('Maps Config Error:', error); }
+    }
+    loadGoogleMapsAPI();
+</script>
+{% endblock %}

@@ -31,37 +31,11 @@
     margin-bottom: 40px;
 }
 
-/* --- TOGGLE DIRECTION --- */
-.direction-toggle {
-    display: flex;
-    background: #F3F4F6;
-    border-radius: var(--radius);
-    padding: 5px;
-    margin-bottom: 30px;
-    gap: 5px;
+/* --- TOGGLE DIRECTION (page-specific centering) --- */
+.search-card .direction-toggle {
     max-width: 500px;
     margin-left: auto;
     margin-right: auto;
-}
-
-.direction-toggle button {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-family: inherit;
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: var(--text-gray);
-    background: transparent;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.direction-toggle button.active {
-    background: var(--white);
-    color: var(--primary-blue);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 /* --- FORMULAIRE GRILLE --- */
@@ -97,19 +71,6 @@
     color: var(--text-dark);
     background: var(--white);
     outline: none;
-}
-
-/* Conteneur Autocomplete */
-.autocomplete-container {
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    background: white;
-    min-height: 50px; 
-}
-
-gmp-place-autocomplete {
-    width: 100%;
-    display: block;
 }
 
 /* Bouton Rechercher */
@@ -364,28 +325,11 @@ gmp-place-autocomplete {
     cursor: not-allowed;
 }
 
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-
-.modal-box {
-    background: var(--white);
-    padding: 30px;
-    border-radius: 20px;
-    width: 100%;
-    max-width: 400px;
+/* Confirmation Modal (page-specific) */
+.search-card ~ .modal-overlay .modal-box {
     text-align: center;
     box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    max-width: 400px;
 }
 
 .modal-box h3 {
@@ -400,13 +344,7 @@ gmp-place-autocomplete {
     font-size: 0.95rem;
 }
 
-.modal-buttons {
-    display: flex;
-    gap: 15px;
-}
-
 .modal-buttons button {
-    flex: 1;
     padding: 12px;
     border-radius: 8px;
     font-weight: 600;
@@ -435,16 +373,88 @@ gmp-place-autocomplete {
 }
 
 
+/* === RESPONSIVE === */
 @media (max-width: 900px) {
-    .search-form-grid {
-        grid-template-columns: 1fr; /* Une seule colonne sur mobile */
+    .hero-search {
+        padding: 40px 20px 80px;
     }
-    
+
+    .hero-search h1 {
+        font-size: 1.6rem;
+    }
+
+    .main-container {
+        margin: -50px auto 40px;
+        padding: 0 15px;
+    }
+
+    .search-form-grid {
+        grid-template-columns: 1fr;
+    }
+
     .search-card {
         padding: 25px;
+        border-radius: 16px;
     }
-    
+
     .btn-search-large {
         margin-top: 10px;
+    }
+
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-search {
+        padding: 30px 15px 60px;
+    }
+
+    .hero-search h1 {
+        font-size: 1.4rem;
+    }
+
+    .main-container {
+        margin: -40px auto 30px;
+    }
+
+    .search-card {
+        padding: 20px 15px;
+    }
+
+    .direction-toggle button {
+        padding: 10px 8px;
+        font-size: 0.85rem;
+    }
+
+    .btn-search-large {
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+
+    .ride-card-header {
+        padding: 12px 15px;
+    }
+
+    .ride-card-header .price {
+        font-size: 1.3rem;
+    }
+
+    .ride-card-body {
+        padding: 15px;
+    }
+
+    .ride-info {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .no-results {
+        padding: 40px 15px;
+    }
+
+    .no-results h3 {
+        font-size: 1.2rem;
     }
 }

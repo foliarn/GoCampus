@@ -143,7 +143,7 @@ function initSearchForm() {
         const fromIut = document.getElementById('searchFromIut').value === 'true';
         
         if (!lat || !lng) {
-            alert("Veuillez sélectionner une adresse valide dans la liste déroulante.");
+            showPopup("Veuillez sélectionner une adresse valide dans la liste déroulante.", { type: 'warning', title: 'Adresse requise' });
             return;
         }
         

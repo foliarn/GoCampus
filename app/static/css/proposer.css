@@ -32,36 +32,6 @@
     flex-shrink: 0;
 }
 
-/* --- TOGGLE DIRECTION --- */
-.direction-toggle {
-    display: flex;
-    background: #F3F4F6;
-    border-radius: var(--radius);
-    padding: 5px;
-    margin-bottom: 30px;
-    gap: 5px;
-}
-
-.direction-toggle button {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-family: inherit;
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: var(--text-gray);
-    background: transparent;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.direction-toggle button.active {
-    background: var(--white);
-    color: var(--primary-blue);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
 /* --- SECTIONS ADRESSE --- */
 .address-section {
     margin-bottom: 20px; /* Plus d'espace */
@@ -98,7 +68,7 @@
     text-transform: uppercase;
 }
 
-.form-input, .vehicle-select, .iut-address {
+.vehicle-select, .iut-address {
     padding: 12px 14px;
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
@@ -115,14 +85,10 @@
     cursor: not-allowed;
 }
 
-/* --- AUTOCOMPLETE CONTAINER --- */
-.autocomplete-container {
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    background: white;
-    min-height: 50px; 
-    margin-bottom: 15px; /* Marge confortable en dessous */
-    margin-top: 5px;     /* Marge confortable au dessus */
+/* --- AUTOCOMPLETE CONTAINER (page-specific) --- */
+.trajet-card .autocomplete-container {
+    margin-bottom: 15px;
+    margin-top: 5px;
 }
 
 /* Confirmation d'adresse sélectionnée */
@@ -182,7 +148,7 @@ gmp-place-autocomplete {
 
 .publish-btn:hover { background-color: #005bb5; }
 
-/* --- MESSAGES & MODAL --- */
+/* --- ROUTE INFO --- */
 .route-info {
     background: #F0FDF4;
     border: 1px solid #86EFAC;
@@ -192,39 +158,7 @@ gmp-place-autocomplete {
     display: none;
 }
 
-.api-error, .error-message, .success-message {
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-size: 0.9rem;
-    display: none;
-}
-
-.api-error { background: #FFFBEB; border: 1px solid #FCD34D; color: #92400E; }
-.error-message { background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C; }
-.success-message { background: #ECFDF5; border: 1px solid #A7F3D0; color: #047857; }
-
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-box {
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 450px;
-}
-
-.modal-buttons { display: flex; gap: 15px; margin-top: 25px; }
-.modal-buttons button { flex: 1; }
-
+/* --- MODAL BUTTONS --- */
 .cancel-btn {
     background: #E5E7EB;
     border: none;
@@ -234,6 +168,56 @@ gmp-place-autocomplete {
     cursor: pointer;
 }
 
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+    .trajet-page {
+        padding: 30px 15px;
+    }
+
+    .trajet-card {
+        padding: 30px 25px;
+        border-radius: 16px;
+    }
+
+    .trajet-card-header h1 {
+        font-size: 1.5rem;
+    }
+}
+
 @media (max-width: 600px) {
-    .form-grid { grid-template-columns: 1fr; }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .trajet-page {
+        padding: 20px 15px;
+    }
+
+    .trajet-card {
+        padding: 25px 20px;
+    }
+
+    .trajet-card-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .direction-toggle button {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+
+    .publish-btn {
+        padding: 14px;
+        font-size: 1rem;
+    }
+
+    .btn-add-vehicle {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+
+    .modal-box {
+        padding: 25px 20px;
+        border-radius: 16px;
+    }
 }

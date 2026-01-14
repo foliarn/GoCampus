@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app import crud, schemas, deps
@@ -25,16 +25,12 @@ def create_vehicle(
 ):
     """Ajoute un véhicule pour l'utilisateur connecté"""
     return crud.create_vehicle(db, vehicle, current_user.user_id)
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from app import crud, schemas, database, deps
 
 @router.delete("/{vehicle_id}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_vehicle(
     vehicle_id: int,
     current_user: schemas.UserOut = Depends(deps.get_current_user),
-    db: Session = Depends(database.get_db)
+    db: Session = Depends(get_db)
 ):
     """
     Deletes a vehicle, ensuring it belongs to the authenticated user.

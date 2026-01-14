@@ -1,49 +1,16 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoCampus - Inscription</title>
-    <!-- Police Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/common.css">
-    <link rel="stylesheet" href="/static/css/inscription.css">
-    
-</head>
-<body>
+{% extends "base.html" %}
 
-    <!-- Header -->
-    <nav class="navbar">
-        <a href="/" class="logo">
-            <img src="/static/images/logo.svg" alt="Logo GoCampus" onerror="this.style.display='none'">
-            GoCampus
-        </a>
-        <ul class="nav-links">
-            <li><a href="/">Accueil</a></li>
-            <li><a href="/rechercher">Rechercher</a></li>
-            <li><a href="/proposer">Proposer un trajet</a></li>
-            <li><a href="/reservations">Mes réservations</a></li>
-            <li><a href="/annonces">Mes annonces</a></li>
-            <li class="user-menu" id="userMenu" style="display: none;">
-                <button class="user-menu-toggle" id="userMenuToggle">
-                    <span id="userName">Utilisateur</span>
-                </button>
-                <div class="user-dropdown">
-                    <a href="/profil">Votre profil</a>
-                    <a href="/admin/dashboard" class="admin-link" id="adminLink" style="display: none;">Administration</a>
-                    <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
-                </div>
-            </li>
-            
-            <!-- Lien connexion (visible uniquement si non connecté) -->
-            <li id="loginLink"><a href="/connexion">Connexion</a></li>
-        </ul>
-    </nav>
+{% block title %}GoCampus - Inscription{% endblock %}
 
+{% block styles %}
+<link rel="stylesheet" href="/static/css/inscription.css">
+{% endblock %}
+
+{% block content %}
     <!-- Formulaire Inscription -->
     <div class="main-content">
         <div class="login-card">
-            
+
             <div class="login-header-wrapper">
                 <img src="/static/images/logo.svg" alt="Logo" class="login-logo-img" onerror="this.style.display='none'">
                 <h1 class="login-logo-text">GoCampus</h1>
@@ -52,7 +19,7 @@
             <h2 class="login-subtitle">Créer un compte</h2>
 
             <form id="registerForm">
-                
+
                 <!-- Nom et Prénom -->
                 <div class="form-row">
                     <div class="form-group">
@@ -91,17 +58,9 @@
                     </div>
                 </div>
 
-                <!-- Véhicules -->
-                <div class="form-group">
-                    <label class="form-label">Véhicule(s)</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="vehicle" placeholder="Ex: Renault Clio, Peugeot 208...">
-                    </div>
-                </div>
-                
                 <!-- Message d'erreur -->
                 <div id="errorMessage" style="color: red; margin-bottom: 10px; display: none;"></div>
-                
+
                 <button type="submit" class="btn-submit">S'inscrire</button>
             </form>
 
@@ -110,37 +69,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h4>GoCampus</h4>
-                    <p style="opacity: 0.8; line-height: 1.6;">
-                        Service de covoiturage pour les étudiants de l'Université de Picardie Jules Verne.
-                    </p>
-                </div>
-                <div class="footer-col">
-                    <h4>Contact</h4>
-                    <ul>
-                        <li><img src="/static/images/icon-mail-gris.svg" class="icon-img" alt="Mail" onerror="this.style.display='none'"> contact@gocampus.fr</li>
-                        <li><img src="/static/images/icon-map-gris.svg" class="icon-img" alt="Map" onerror="this.style.display='none'"> Amiens, France</li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>A propos</h4>
-                    <p style="opacity: 0.8; line-height: 1.6;">Un service créé par et pour les étudiants pour faciliter les déplacements.</p>
-                </div>
-            </div>
-            <div class="copyright">
-                &copy; 2025 GoCampus. Tous droits réservés.
-            </div>
-        </div>
-    </footer>
-    
-    <script src="/static/js/script.js"></script>
-    <script src="/static/js/auth.js"></script>
-
-</body>
-</html>
+{% block scripts %}
+<script src="/static/js/script.js"></script>
+{% endblock %}

@@ -306,10 +306,18 @@ async function addVehicle() {
 }
 
 async function deleteVehicle(vehicleId) {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?')) {
+    const confirmed = await showConfirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?', {
+        title: 'Supprimer le véhicule',
+        type: 'warning',
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        danger: true
+    });
+
+    if (!confirmed) {
         return;
     }
-    
+
     try {
         const response = await fetchWithAuth(`/vehicles/${vehicleId}`, {
             method: 'DELETE'
