@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoCampus - Rechercher</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/common.css">
     <link rel="stylesheet" href="/static/css/rechercher.css">
 </head>
 <body>
@@ -22,7 +22,19 @@
             <li><a href="/proposer">Proposer un trajet</a></li>
             <li><a href="/reservations">Mes réservations</a></li>
             <li><a href="/annonces">Mes annonces</a></li>
-            <li><a href="/connexion">Connexion</a></li>
+            <li class="user-menu" id="userMenu" style="display: none;">
+                <button class="user-menu-toggle" id="userMenuToggle">
+                    <span id="userName">Utilisateur</span>
+                </button>
+                <div class="user-dropdown">
+                    <a href="/profil">Votre profil</a>
+                    <a href="/admin/dashboard" class="admin-link" id="adminLink" style="display: none;">Administration</a>
+                    <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
+                </div>
+            </li>
+            
+            <!-- Lien connexion (visible uniquement si non connecté) -->
+            <li id="loginLink"><a href="/connexion">Connexion</a></li>
         </ul>
     </nav>
 

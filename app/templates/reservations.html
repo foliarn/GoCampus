@@ -6,7 +6,7 @@
     <title>GoCampus - Mes Réservations</title>
     <!-- Police Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
+   <link rel="stylesheet" href="/static/css/common.css">
     <link rel="stylesheet" href="/static/css/reservation.css">
 </head>
 <body>
@@ -23,7 +23,19 @@
             <li><a href="/proposer">Proposer un trajet</a></li>
             <li><a href="/reservations" class="active">Mes réservations</a></li>
             <li><a href="/annonces">Mes annonces</a></li>
-            <li><a href="/connexion">Connexion</a></li>
+            <li class="user-menu" id="userMenu" style="display: none;">
+                <button class="user-menu-toggle" id="userMenuToggle">
+                    <span id="userName">Utilisateur</span>
+                </button>
+                <div class="user-dropdown">
+                    <a href="/profil">Votre profil</a>
+                    <a href="/admin/dashboard" class="admin-link" id="adminLink" style="display: none;">Administration</a>
+                    <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
+                </div>
+            </li>
+            
+            <!-- Lien connexion (visible uniquement si non connecté) -->
+            <li id="loginLink"><a href="/connexion">Connexion</a></li>
         </ul>
     </nav>
 
@@ -38,6 +50,64 @@
         <!-- Le loader sera injecté ici par JS -->
         <div style="text-align: center; margin-top: 50px; color: #6B7280;">
             Chargement de vos réservations...
+        </div>
+    </div>
+
+    <!-- User Info Modal -->
+    <div id="userInfoModal" class="modal">
+        <div class="modal-content user-info-modal">
+            <div class="modal-header">
+                <h2>Informations utilisateur</h2>
+                <span class="close-modal" onclick="closeUserInfoModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="userInfoContent" class="user-info-content">
+                    <div class="loading-spinner">Chargement...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Laisser un avis</h2>
+                <span class="close-modal" onclick="closeReviewModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p class="driver-name">Conducteur: <strong id="driverNameDisplay"></strong></p>
+
+                <div class="rating-section">
+                    <label>Votre note:</label>
+                    <div class="star-rating" id="starRating">
+                        <span class="star" data-rating="1">★</span>
+                        <span class="star" data-rating="2">★</span>
+                        <span class="star" data-rating="3">★</span>
+                        <span class="star" data-rating="4">★</span>
+                        <span class="star" data-rating="5">★</span>
+                    </div>
+                    <span id="ratingValue" class="rating-value">0/5</span>
+                </div>
+
+                <div class="comment-section">
+                    <label for="reviewComment">Votre commentaire (optionnel):</label>
+                    <textarea
+                        id="reviewComment"
+                        placeholder="Partagez votre expérience..."
+                        maxlength="500"
+                        rows="4"
+                    ></textarea>
+                    <span class="char-count"><span id="charCount">0</span>/500</span>
+                </div>
+
+                <div id="reviewError" class="error-message" style="display: none;"></div>
+                <div id="reviewSuccess" class="success-message" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeReviewModal()">Annuler</button>
+                <button class="btn-primary" onclick="submitReview()" id="submitReviewBtn">Envoyer l'avis</button>
+            </div>
         </div>
     </div>
 

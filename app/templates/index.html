@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoCampus</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/common.css">
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -21,8 +22,19 @@
             <li><a href="/proposer">Proposer un trajet</a></li>
             <li><a href="/reservations">Mes réservations</a></li>
             <li><a href="/annonces">Mes annonces</a></li>
-            <li><a href="/profil">Mon Profil</a></li>
-            <li><a href="/connexion">Connexion</a></li>
+            <li class="user-menu" id="userMenu" style="display: none;">
+                <button class="user-menu-toggle" id="userMenuToggle">
+                    <span id="userName">Utilisateur</span>
+                </button>
+                <div class="user-dropdown">
+                    <a href="/profil">Votre profil</a>
+                    <a href="/admin/dashboard" class="admin-link" id="adminLink" style="display: none;">Administration</a>
+                    <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
+                </div>
+            </li>
+            
+            <!-- Lien connexion (visible uniquement si non connecté) -->
+            <li id="loginLink"><a href="/connexion">Connexion</a></li>
         </ul>
     </nav>
 
@@ -35,32 +47,11 @@
     </header>
 
     <!-- Barre de Recherche -->
-    <div class="search-wrapper">
-        <form class="search-bar">
-            <!-- DEPART -->
-            <div class="input-group">
-                <span class="input-label">Départ</span>
-                <div class="input-field">
-                    <img src="/static/images/icon-map-gris.svg" alt="Loc" class="icon-img">
-                    <input type="text" placeholder="D'où partez-vous ?">
-                </div>
-            </div>
-            
-            <!-- ARRIVEE -->
-            <div class="input-group">
-                <span class="input-label">Arrivée</span>
-                <div class="input-field">
-                    <img src="/static/images/icon-arriver.svg" alt="Loc" class="icon-img">
-                    <input type="text" value="IUT Amiens">
-                </div>
-            </div>
-
-            <!-- Bouton avec image recherche -->
-            <button type="button" class="btn-search">
-                <img src="/static/images/icon-search.svg" alt="Search" class="icon-img" style="filter: brightness(0) invert(1);">
-                Rechercher
-            </button>
-        </form>
+    <div class="cta-action-container">
+        <a href="/rechercher" class="btn-main-action">
+            <img src="/static/images/icon-search.svg" alt="" class="icon-img" style="filter: brightness(0) invert(0);"> 
+            Trouver un trajet
+        </a>
     </div>
 
     <!-- Contenu Principal -->
@@ -103,12 +94,6 @@
             <a href="/inscription" class="btn-register">S'inscrire gratuitement <img src="/static/images/icon-fleche-droite.svg" alt="" class="icon-arrow"></a>
         </section>
 
-        <!-- Message de bienvenue (visible uniquement si connecté) -->
-        <section class="cta-box auth-only" style="display: none;">
-            <h2>Bienvenue sur GoCampus !</h2>
-            <p>Vous êtes connecté. Recherchez un trajet ou proposez le vôtre.</p>
-            <a href="/rechercher" class="btn-register">Rechercher un trajet <img src="/static/images/icon-fleche-droite.svg" alt="" class="icon-arrow"></a>
-        </section>
 
             <!-- Trajets -->
         <section class="listings-section">
@@ -119,6 +104,21 @@
         </section>
 
     </main>
+
+    <!-- User Info Modal -->
+    <div id="userInfoModal" class="modal">
+        <div class="modal-content user-info-modal">
+            <div class="modal-header">
+                <h2>Informations utilisateur</h2>
+                <span class="close-modal" onclick="closeUserInfoModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="userInfoContent" class="user-info-content">
+                    <div class="loading-spinner">Chargement...</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer>

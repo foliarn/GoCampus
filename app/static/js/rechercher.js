@@ -70,10 +70,10 @@ function createSearchAutocompleteElement() {
     
     container.innerHTML = '';
     
-    const placeAutocomplete = new PlaceAutocompleteElement({
+    placeAutocomplete = new PlaceAutocompleteElement({
         componentRestrictions: { country: 'fr' },
     });
-    
+
     container.appendChild(placeAutocomplete);
     
     placeAutocomplete.addEventListener('gmp-select', async ({ placePrediction }) => {

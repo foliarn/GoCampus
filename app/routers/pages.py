@@ -51,8 +51,3 @@ def admin_dashboard(request: Request):
 @router.get("/profil")
 def profil(request: Request):
     return templates.TemplateResponse("profil.html", {"request": request})
-
-# Test Google Maps API
-@router.get("/test-maps")
-def test_maps(request: Request):
-    return templates.TemplateResponse("test_maps.html", {"request": request})

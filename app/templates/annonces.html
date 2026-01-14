@@ -6,8 +6,8 @@
     <title>GoCampus - Mes annonces</title>
     <!-- Police Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="../static/css/annonce.css">
+    <link rel="stylesheet" href="/static/css/common.css">
+    <link rel="stylesheet" href="/static/css/annonce.css">
 </head>
 <body>
 
@@ -23,7 +23,20 @@
             <li><a href="/proposer">Proposer un trajet</a></li>
             <li><a href="/reservations">Mes réservations</a></li>
             <li><a href="/annonces" class="active">Mes annonces</a></li>
-            <li><a href="/connexion">Connexion</a></li>
+            <!-- Menu utilisateur (visible uniquement si connecté) -->
+            <li class="user-menu" id="userMenu" style="display: none;">
+                <button class="user-menu-toggle" id="userMenuToggle">
+                    <span id="userName">Utilisateur</span>
+                </button>
+                <div class="user-dropdown">
+                    <a href="/profil">Votre profil</a>
+                    <a href="/admin/dashboard" class="admin-link" id="adminLink" style="display: none;">Administration</a>
+                    <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
+                </div>
+            </li>
+            
+            <!-- Lien connexion (visible uniquement si non connecté) -->
+            <li id="loginLink"><a href="/connexion">Connexion</a></li>
         </ul>
     </nav>
     <div class="page-title">
@@ -34,6 +47,21 @@
     <main class="annonces-container" id="annonces-container">
         <p class="no-results-msg">Chargement...</p>
     </main>
+
+    <!-- User Info Modal -->
+    <div id="userInfoModal" class="modal">
+        <div class="modal-content user-info-modal">
+            <div class="modal-header">
+                <h2>Informations utilisateur</h2>
+                <span class="close-modal" onclick="closeUserInfoModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="userInfoContent" class="user-info-content">
+                    <div class="loading-spinner">Chargement...</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer>

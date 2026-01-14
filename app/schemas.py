@@ -15,8 +15,13 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str 
 
+class UserUpdate(UserBase):
+    password: Optional[str] = None
+
 class UserOut(UserBase):
     user_id: int
+    average_rating: Optional[float] = None
+    review_count: Optional[int] = None
 
     class Config:
         from_attributes = True
@@ -149,6 +154,24 @@ class ReservationOut(ReservationBase):
     
     # Infos du trajet associé
     ride: Optional[RideOut] = None
+
+    class Config:
+        from_attributes = True
+
+# --- REVIEW ---
+class ReviewBase(BaseModel):
+    rating: int
+    comment: Optional[str] = None
+
+class ReviewCreate(ReviewBase):
+    reservation_id: int
+
+class ReviewOut(ReviewBase):
+    review_id: int
+    reservation_id: int
+    reviewer_id: int
+    driver_id: int
+    created_at: datetime
 
     class Config:
         from_attributes = True

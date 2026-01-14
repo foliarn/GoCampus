@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from app.routers import auth, pages, rides, reservations, vehicles, admin, users
+from app.routers import auth, pages, rides, reservations, vehicles, admin, users, reviews
 from app import deps, schemas
 from app.config import settings
 
@@ -21,6 +21,7 @@ app.include_router(reservations.router)
 app.include_router(vehicles.router)
 app.include_router(admin.router)
 app.include_router(users.router)
+app.include_router(reviews.router)
 
 # Test route API - Get current user
 @app.get("/users/me", response_model=schemas.UserOut)
